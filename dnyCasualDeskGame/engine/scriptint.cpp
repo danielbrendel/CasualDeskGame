@@ -10,7 +10,7 @@
 
 	Version: 0.8
 	Contact: Daniel Brendel<at>gmail<dot>com
-	GitHub: https://github.com/dny-coder
+	GitHub: https://github.com/danielbrendel
 
 	Licence: Creative Commons Attribution-NoDerivatives 4.0 International
 */
