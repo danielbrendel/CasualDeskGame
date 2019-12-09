@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Gun sprite: tgfcoder (https://opengameart.org/content/endless-midnight-zombie-swarm-assets)
+Flame sheet: dorkster (https://opengameart.org/content/animated-flame)
+
+SFX Credits:
+============
+Fire shot: themightyglider (https://opengameart.org/content/catching-fire)
+Fire sheet: Chromaeleon (https://opengameart.org/content/2d-pixel-fire-sprite-strip)

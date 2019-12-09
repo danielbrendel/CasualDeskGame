@@ -1,0 +1,70 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+/*
+    Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
+
+    (C) 2018 - 2019 by Daniel Brendel
+
+    Version: 0.8
+    Contact: Daniel Brendel<at>gmail<dot>com
+    GitHub: https://github.com/dny-coder
+
+    Licence: Creative Commons Attribution-NoDerivatives 4.0 International
+*/
+html, body {
+    height: 100%;
+}
+#app {
+    height: 100%;
+    width: 100%;
+    background-image: url('/img/bg.jpg');
+}
+.content-bg {
+    position: relative;
+    background-color: rgb(200, 200, 200);
+    height: 100%;
+    top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 100%;
+}
+.content-cnt {
+    position: relative;
+    margin-right: 20px;
+    margin-left: 20px;
+    height: 100%;
+}
+.fm-bg {
+    border: 1px solid green;
+    border-radius: 4px;
+}
+.fm-issuccess {
+    border: 1px solid green;
+    background-color: rgb(144, 238, 144);
+}
+.fm-iserror {
+    border: 1px solid red;
+    background-color: rgb(255, 153, 153);
+}
+.fm-msg {
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+.screenshot-container {
+    position: relative;
+    overflow-y: auto;
+    height: 600px;
+}
+.screenshot-img {
+    position: relative;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}

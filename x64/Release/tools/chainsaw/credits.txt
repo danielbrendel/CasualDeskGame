@@ -1,0 +1,7 @@
+2D Art Credits:
+===============
+Chainsaw: ashmoses (https://opengameart.org/content/weapon-inventory-graphics)
+
+SFX Credits:
+============
+Engine: qubodup (https://opengameart.org/content/car-engine-loop-96khz-4s)

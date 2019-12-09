@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Bomb sprite: Amon (https://opengameart.org/content/animated-bomb)
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)
+Fuse: themightyglider (https://opengameart.org/content/simple-fuse-sound)

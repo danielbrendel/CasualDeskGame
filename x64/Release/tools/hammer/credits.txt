@@ -1,0 +1,7 @@
+2D Art Credits:
+===============
+Hammer sprite: Clint Bellanger (https://opengameart.org/content/flare-weapon-icons-2)
+
+SFX Credits:
+============
+Crash: spookymodem (https://opengameart.org/content/breaking-bottle)

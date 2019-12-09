@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Soldier sprite: rileygombart (https://opengameart.org/content/animated-top-down-survivor-player)
+Muzzleflash sprite: tgfcoder (https://opengameart.org/content/endless-midnight-zombie-swarm-assets)
+
+SFX Credits:
+============
+Gunshot: Michael Klier(https://opengameart.org/content/futuristic-smg)
+Step: Jute (https://opengameart.org/content/foot-walking-step-sounds-on-stone-water-snow-wood-and-dirt)

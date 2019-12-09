@@ -1,0 +1,7 @@
+toolname bazooka
+title Bazooka Weapon
+description A great Panzerfaust for you
+visibility true
+tags none
+preview E:\Projects\dnycasualDeskGame\x64\Release\tools\bazooka\bazooka.png
+changenote 0.1 - initial release

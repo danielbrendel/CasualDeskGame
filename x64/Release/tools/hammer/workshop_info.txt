@@ -1,0 +1,7 @@
+toolname hammer
+title Hammer Tool
+description The Original Hammer Tool
+visibility true
+tags none
+preview E:\Projects\dnycasualDeskGame\x64\Release\tools\hammer\hammer.png
+changenote 0.2

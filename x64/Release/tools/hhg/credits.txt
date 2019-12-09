@@ -1,0 +1,7 @@
+2D Art Credits:
+===============
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)

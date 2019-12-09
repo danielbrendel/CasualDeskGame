@@ -1,0 +1,11 @@
+2D Art Credits:
+===============
+Explosion sprite: Sinestesia (https://opengameart.org/content/2d-explosion-animations-2-frame-by-frame)
+Rocket and nuclear sign: Napoleon (https://opengameart.org/content/missile, https://opengameart.org/content/basic-nuclear-signs)
+Crosshair and marker: para (https://opengameart.org/content/64-crosshairs-pack)
+Rocket trail: para (https://opengameart.org/content/animated-particle-effects-2)
+
+SFX Credits:
+============
+Detonation: Blender Foundation (https://opengameart.org/content/rockbreaking)
+Alert: Gumichan01 (https://opengameart.org/content/tx-alert)

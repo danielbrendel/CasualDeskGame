@@ -1,0 +1,8 @@
+2D Art Credits:
+===============
+Lasergun sprite: ashmoses (https://opengameart.org/content/weapon-inventory-graphics)
+Lasers: Rawdanitsu (https://opengameart.org/content/lasers-and-beams)
+
+SFX Credits:
+============
+Laser: dklon (https://opengameart.org/content/laser-fire)

@@ -1,0 +1,11 @@
+2D Art Credits:
+===============
+
+Missile: samoliver (https://opengameart.org/content/missile-0)
+Crosshair: para (https://opengameart.org/content/64-crosshairs-pack)
+Rocket trail: para (https://opengameart.org/content/animated-particle-effects-2)
+Fireworks: myriad (https://opengameart.org/content/fireworks)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)

@@ -1,0 +1,10 @@
+key1 mp5.as
+key2 colorgun.as
+key3 bomb.as
+key4 hammer.as
+key5 stamp.as
+key6 #0
+key7 #0
+key8 #0
+key9 #0
+key10 #0

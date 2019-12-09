@@ -1,0 +1,7 @@
+2D Art Credits:
+===============
+Gun and muzzleflash sprite: tgfcoder (https://opengameart.org/content/endless-midnight-zombie-swarm-assets)
+
+SFX Credits:
+============
+Gunshot: Michael Klier(https://opengameart.org/content/futuristic-smg)

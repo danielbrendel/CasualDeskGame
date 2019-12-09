@@ -1,0 +1,10 @@
+2D Art Credits:
+===============
+Tank components: chabull (https://opengameart.org/content/tanks-and-trucks)
+muzzleflash sprite: tgfcoder (https://opengameart.org/content/endless-midnight-zombie-swarm-assets)
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+Crosshair: para
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)

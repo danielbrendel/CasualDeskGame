@@ -1,0 +1,10 @@
+Graphics:
+=========
+Bazooka: Game Developer Studio (https://opengameart.org/content/bazooka)
+Explosion: Sinestesia (https://opengameart.org/content/2d-explosion-animations-frame-by-frame)
+Rocket: Napoleon (https://opengameart.org/content/missile, https://opengameart.org/content/basic-nuclear-signs)
+Rocket trail: para (https://opengameart.org/content/animated-particle-effects-2)
+
+Sounds:
+=======
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)
