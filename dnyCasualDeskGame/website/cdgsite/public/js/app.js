@@ -49286,7 +49286,7 @@ Vue.component('example-component', __webpack_require__(/*! ./components/ExampleC
     (C) 2018 - 2019 by Daniel Brendel
 
     Version: 0.8
-    Contact: Daniel Brendel<at>gmail<dot>com
+    Contact: dbrendel1988<at>yahoo<dot>com
     GitHub: https://github.com/danielbrendel
 
     Licence: Creative Commons Attribution-NoDerivatives 4.0 International

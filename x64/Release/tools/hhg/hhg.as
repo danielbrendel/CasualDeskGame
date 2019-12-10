@@ -5,7 +5,7 @@
 	
 	Tool: Holy Handgrenade (developed by Daniel Brendel)
 	Version: 0.1
-	Contact: Daniel Brendel<at>gmail<dot>com
+	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
 	Licence: Creative Commons Attribution-NoDerivatives 4.0 International
@@ -490,7 +490,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 	info.szName = "Holy Hendgrenade";
 	info.szAuthor = "Daniel Brendel";
 	info.szVersion = "0.1";
-	info.szContact = "Daniel Brendel<at>gmail<dot>com";
+	info.szContact = "dbrendel1988<at>yahoo<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "hhg.png";
 	info.szCategory = "Weapons";
