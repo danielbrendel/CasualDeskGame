@@ -1,12 +1,12 @@
 Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
 ==============================================================
 
-(C) 2018 - 2019 by Daniel Brendel
+(C) 2018 - 2020 by Daniel Brendel
 
-Version: 0.8
+Version: 1.0
 Contact: dbrendel1988<at>yahoo<dot>com
 GitHub: https://github.com/danielbrendel
-Licence: Creative Commons Attribution-NoDerivatives 4.0 International
+License: see LICENSE.txt
 
 This program is a casual game with the purpose to pass time via spawning and 
 handling custom created entities on your Desktop. Therefore you will be provided 
@@ -94,3 +94,10 @@ Changelog:
 	+ Steam Workshop integration
 	+ Added volume control
 	+ Added tool selection key bindings
+# Version 0.9:
+	+ Small fixes
+# Version 1.0:
+	+ Added README.md
+	+ Changed license to MIT
+	+ Adjustable exit confirmation
+	+ Upgrade project to MSVC++ 2019

@@ -3,13 +3,13 @@
 /*
 	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
 
-	(C) 2018 - 2019 by Daniel Brendel
+	(C) 2018 - 2020 by Daniel Brendel
 
-	Version: 0.8
+	Version: 1.0
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
-	Licence: Creative Commons Attribution-NoDerivatives 4.0 International
+	License: see LICENSE.txt
 */
 
 #include "shared.h"
@@ -17,6 +17,7 @@
 #include "sound.h"
 #include "entity.h"
 #include "browser.h"
+#include <steam_api.h>
 
 /* Menu environment */
 namespace Menu {
@@ -51,6 +52,7 @@ namespace Menu {
 	int SettingMenuScrollbarLength = 394;
 	DxRenderer::d3dfont_s* DefaultFontHandle = nullptr;
 	Entity::game_keys_s sGameKeys;
+	bool bShallConfirmOnExit = true;
 
 	void SetGameKeys(const Entity::game_keys_s& keys) { sGameKeys = keys; }
 
@@ -1338,6 +1340,10 @@ namespace Menu {
 				if (this->m_uiSelectedToolBinding != -1) {
 					this->m_pMenuDropDown->Draw(Entity::Vector(vBodyStart[0] + 200, vBodyStart[1] + 50));
 				}
+
+				//Draw exit confirmation indicator
+				std::wstring wszConfirmOnExit = ((Menu::bShallConfirmOnExit) ? L"Yes" : L"No");
+				this->m_pRenderer->DrawString(DefaultFontHandle, L"Confirm on exit: " + wszConfirmOnExit + L" (click to toggle)", vBodyStart[0] + 1, vBodyStart[1] + 300, 200, 200, 200, 255);
 			}
 			virtual void OnClick(const Entity::Vector& vCursorPos, MouseKey_e eMouseKey)
 			{
@@ -1383,6 +1389,13 @@ namespace Menu {
 						this->m_uiLastSelection = this->m_pMenuDropDown->Selection();
 						this->m_uiSelectedToolBinding = -1;
 					}
+				}
+
+				//Toggle exit confirmation indicator
+				if ((vCursorPos[0] >= this->m_vecBodyStart[0] + 1 + 110) && (vCursorPos[1] >= this->m_vecBodyStart[1] + 300) && (vCursorPos[0] <= this->m_vecBodyStart[0] + 1 + 110 + 17) && (vCursorPos[1] <= this->m_vecBodyStart[1] + 300 + 15)) {
+					Menu::bShallConfirmOnExit = !Menu::bShallConfirmOnExit;
+
+					return;
 				}
 			}
 			virtual void OnKeyPressed(int vKey)
@@ -1669,5 +1682,100 @@ namespace Menu {
 		//Getters
 		inline bool IsReady(void) { return this->m_bReady; }
 		inline bool IsVisible(void) const { return this->m_bVisible; }
+	};
+
+	class CExitMenu { //Game exit menu
+	public:
+		typedef void(*TpfnOnConfirmPrompt)(void);
+	private:
+		static const int ExitMenuWidth = 380;
+		static const int ExitMenuHeight = 110;
+		DxRenderer::CDxRenderer* m_pRenderer;
+		bool m_bVisible;
+		Entity::Vector m_vDrawPos;
+		std::wstring m_wszMenuKeyName;
+		TpfnOnConfirmPrompt m_pfnConfirmPrompt;
+	public:
+		CExitMenu() : m_pRenderer(nullptr), m_bVisible(false), m_wszMenuKeyName(L""), m_pfnConfirmPrompt(nullptr) {}
+		CExitMenu(DxRenderer::CDxRenderer* pRenderer, TpfnOnConfirmPrompt pEventFunction) 
+			: m_pRenderer(pRenderer),
+			m_bVisible(false),
+			m_wszMenuKeyName(L""),
+			m_pfnConfirmPrompt(pEventFunction)
+		{
+			//Init center drawing position
+			this->m_vDrawPos[0] = pRenderer->GetWindowWidth() / 2 - CExitMenu::ExitMenuWidth / 2;
+			this->m_vDrawPos[1] = pRenderer->GetWindowHeight() / 2 - CExitMenu::ExitMenuHeight / 2;
+
+			//Get name of menu key
+			WCHAR wszName[MAX_PATH];
+			UINT uiScanCode = MapVirtualKeyW(Menu::sGameKeys.vkMenu, MAPVK_VK_TO_VSC);
+			int iCopyResult = GetKeyNameTextW((uiScanCode << 16), wszName, sizeof(wszName));
+			if (iCopyResult != 0) {
+				this->m_wszMenuKeyName = wszName;
+			}
+		}
+		~CExitMenu() {}
+
+		void Draw(void)
+		{
+			//Draw the menu
+
+			if (!this->m_bVisible)
+				return;
+
+			//Draw form
+			this->m_pRenderer->DrawBox(this->m_vDrawPos[0] - 1, this->m_vDrawPos[1] - 1, CExitMenu::ExitMenuWidth + 1, ExitMenuHeight + 1, 1, 0, 122, 204, 150);
+			this->m_pRenderer->DrawFilledBox(this->m_vDrawPos[0], this->m_vDrawPos[1], CExitMenu::ExitMenuWidth, CExitMenu::ExitMenuHeight, 37, 37, 38, 150);
+
+			//Draw confirmation message
+			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"Do you really want to exit?", this->m_vDrawPos[0] + 6, this->m_vDrawPos[1] + 6, 200, 200, 200, 150);
+			//Draw info message
+			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"(Press " + this->m_wszMenuKeyName + L" to open the menu)", this->m_vDrawPos[0] + 6, this->m_vDrawPos[1] + 25, 200, 200, 200, 150);
+
+			//Draw buttons
+			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"Yes", this->m_vDrawPos[0] + 14, this->m_vDrawPos[1] + 80, 200, 200, 200, 150);
+			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"No", this->m_vDrawPos[0] + 335, this->m_vDrawPos[1] + 80, 200, 200, 200, 150);
+		}
+
+		void OnClick(const Entity::Vector& vPos, MouseKey_e eMouseKey)
+		{
+			//Handle click events
+
+			if ((vPos[0] >= this->m_vDrawPos[0] + 14) && (vPos[0] <= this->m_vDrawPos[0] + 14 + 20) && (vPos[1] >= this->m_vDrawPos[1] + 80) && (vPos[1] <= this->m_vDrawPos[1] + 80 + 20)) {
+				this->m_pfnConfirmPrompt();
+			}
+			else if ((vPos[0] >= this->m_vDrawPos[0] + 335) && (vPos[0] <= this->m_vDrawPos[0] + 335 + 20) && (vPos[1] >= this->m_vDrawPos[1] + 80) && (vPos[1] <= this->m_vDrawPos[1] + 80 + 20)) {
+				this->Hide();
+			}
+		}
+
+		void Show(void)
+		{
+			//Show the menu
+
+			this->m_bVisible = true;
+		}
+
+		void Hide(void)
+		{
+			//Hide the menu
+
+			this->m_bVisible = false;
+		}
+
+		void Toggle(void)
+		{
+			//Toggle the menu
+
+			this->m_bVisible = !this->m_bVisible;
+		}
+
+		inline bool IsVisible(void)
+		{
+			//Indicate if visible or not
+
+			return this->m_bVisible;
+		}
 	};
 }

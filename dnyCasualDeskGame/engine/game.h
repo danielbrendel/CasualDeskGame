@@ -3,13 +3,13 @@
 /*
 	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
 
-	(C) 2018 - 2019 by Daniel Brendel
+	(C) 2018 - 2020 by Daniel Brendel
 
-	Version: 0.8
+	Version: 1.0
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
-	Licence: Creative Commons Attribution-NoDerivatives 4.0 International
+	License: see LICENSE.txt
 */
 
 #include "shared.h"
@@ -40,10 +40,12 @@ namespace Game {
 	Entity::game_keys_s sGameKeys;
 	Workshop::CSteamDownload* pSteamDownloader = nullptr;
 	std::vector<std::vector<std::wstring>> vToolBindings;
+	Menu::CExitMenu* pExitMenu = nullptr;
 
 	void AS_MessageCallback(const asSMessageInfo *msg, void *param);
 	std::wstring GetToolFromBinding(const std::wstring& wszKey);
 	void Release(void);
+	void OnConfirmExitWindow(void);
 
 	inline void FatalErrorMsg(const std::wstring& wszErrorMsg)
 	{
@@ -88,6 +90,42 @@ namespace Game {
 		delete pObject;
 
 		return bResult;
+	}
+
+	bool ShallConfirmOnExit(const std::wstring& wszInputFile)
+	{
+		//Load the indicator from the input file
+
+		std::wifstream hFile;
+		std::wstring wLine = L"1";
+		hFile.open(wszInputFile, std::wifstream::in);
+		if (hFile.is_open()) {
+			std::getline(hFile, wLine);
+			hFile.close();
+		}
+
+		int value = std::stoi(wLine);
+		return (bool)value;
+	}
+
+	bool StoreExitConfirmationIndicator(const std::wstring& wszOutputFile)
+	{
+		//Store indicator value to file
+
+		if (Utils::FileExists(wszOutputFile)) {
+			DeleteFileW(wszOutputFile.c_str());
+		}
+
+		std::wofstream hFile;
+		hFile.open(wszOutputFile, std::wofstream::out);
+		if (hFile.is_open()) {
+			hFile << ((Menu::bShallConfirmOnExit) ? L"1" : L"0") << std::endl;
+			hFile.close();
+
+			return true;
+		}
+
+		return false;
 	}
 
 	//Window event handler component
@@ -166,8 +204,18 @@ namespace Game {
 				pToolManager->Select(wszToolName);
 			}
 			else if (vKey == sGameKeys.vkExit) {
-				Release();
-				bGameReady = false;
+				if (Menu::bShallConfirmOnExit) {
+					if (bDown) {
+						pExitMenu->Toggle();
+						if ((pExitMenu->IsVisible()) && (pGameMenu->IsVisible())) {
+							pGameMenu->Toggle();
+						}
+					}
+				}
+				else {
+					Release();
+					bGameReady = false;
+				}
 			}
 
 			if ((bDown) && (pGameMenu)) {
@@ -189,6 +237,8 @@ namespace Game {
 			if (iMouseKey == sGameKeys.vkTrigger) {
 				if (pGameMenu->IsVisible()) {
 					if (!bDown) pGameMenu->OnClick(vCursorPos, Menu::MKEY_LEFT);
+				} else if (pExitMenu->IsVisible()) {
+					if (!bDown) pExitMenu->OnClick(vCursorPos, Menu::MKEY_LEFT);
 				} else {
 					pToolManager->Trigger(bDown);
 				}
@@ -245,6 +295,11 @@ namespace Game {
 
 			if ((pGameMenu) && (pGameMenu->IsVisible())) {
 				pGameMenu->Draw();
+			}
+
+			if ((pExitMenu) && (pExitMenu->IsVisible())) {
+				pExitMenu->Draw();
+				pDxRenderer->DrawFilledBox(vCursorPos[0], vCursorPos[1], 4, 4, 0, 122, 204, 150);
 			}
 
 			if ((pConsole) && (pConsole->IsVisible())) {
@@ -448,10 +503,6 @@ namespace Game {
 		Workshop::workshop_item_info_s sInfo;
 
 		if (Workshop::LoadWorkshopInfoData(wszItem, sInfo)) {
-			/*if (Utils::DirExists(wszBaseDirectory + L"tools\\" + sInfo.wszToolName)) {
-				Utils::RemoveEntireDirectory(wszBaseDirectory + L"tools\\" + sInfo.wszToolName);
-				Utils::CopyEntireDirectory(wszItem, wszBaseDirectory + L"tools\\" + sInfo.wszToolName);
-			}*/
 			if (pToolManager->LoadToolFromPath(wszItem + L"\\" + sInfo.wszToolName + L".as", sGameKeys) != Entity::CToolMgr::InvalidToolHandle) {
 				pConsole->AddLine(L"Tool \"" + sInfo.wszToolName + L"\": Ok", Console::ConColor(0, 150, 0));
 			} else {
@@ -557,11 +608,20 @@ namespace Game {
 		if (!Browser::InputHostInfo(L"res\\hostinfo.txt"))
 			pConsole->AddLine(L"Failed to query host info", Console::ConColor(150, 150, 0));
 		
+		//Query menu data
 		if (!Menu::SetupMenu(L"res\\menudef.txt"))
 			pConsole->AddLine(L"Failed to query menu data from disk, using default values", Console::ConColor(150, 150, 0));
 
+		//Set exit confirmation indicator
+		Menu::bShallConfirmOnExit = ShallConfirmOnExit(L"res\\exitconfirm.txt");
+
 		//Pass gamekeys data
 		Menu::SetGameKeys(sGameKeys);
+
+		//Instantiate exit menu
+		pExitMenu = new Menu::CExitMenu(pDxRenderer, &OnConfirmExitWindow);
+		if (!pExitMenu)
+			return false;
 
 		//Instantiate Steam Workshop downloader object
 		pSteamDownloader = new Workshop::CSteamDownload(&OnHandleWorkshopItem);
@@ -611,6 +671,9 @@ namespace Game {
 		//Store global volume
 		pDxSound->StoreGlobalVolume(wszBaseDirectory + L"res\\volume.txt");
 
+		//Store exit confirmation value
+		StoreExitConfirmationIndicator(wszBaseDirectory + L"res\\exitconfirm.txt");
+
 		//Store tool bindings
 		StoreToolBindings();
 
@@ -624,6 +687,7 @@ namespace Game {
 		_delete(pConsole);
 		_delete(pGameMenu);
 		_delete(pSteamDownloader);
+		_delete(pExitMenu);
 
 		//Delete screenshot
 		if (Utils::FileExists(wszBaseDirectory + DesktopScreenshotFileName))
@@ -634,6 +698,13 @@ namespace Game {
 
 		//Clear indicator
 		bGameReady = false;
+	}
+
+	void OnConfirmExitWindow(void)
+	{
+		//Called when clicking the "Yes"-button
+
+		Release();
 	}
 
 	void AS_MessageCallback(const asSMessageInfo *msg, void *param)
