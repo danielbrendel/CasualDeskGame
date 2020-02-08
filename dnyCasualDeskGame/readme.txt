@@ -16,9 +16,10 @@ viewed and downloaded via the ingame menu, too. You can also view/upload taken
 screenshots during gameplay (uploaded screenshots are available via the official 
 game website).
 
-Keys:
-*****
+Default keys:
+*************
 Use: Left mouse button (Use the selected tool)
+Move: Ctrl + left mouse button to select, left mouse button to move (move an entity)
 Clean: Right mouse button (Clean your "work")
 Menu: TAB (Handle tools, Workshop items, screenshots and view news)
 Team: Space (Change tool team if applicable)
