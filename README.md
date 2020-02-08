@@ -102,3 +102,4 @@ The following basic steps are required to create a tool:
 	* Entities can now be pointed to a target destination
 	* tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user
 	* headcrab does now attack opponents
+	* New tool 'pistol'

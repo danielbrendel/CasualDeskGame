@@ -1,0 +1,8 @@
+2D Art Credits:
+===============
+Pistol: ashmoses (https://opengameart.org/content/weapon-inventory-graphics)
+Muzzleflash sprite: tgfcoder (https://opengameart.org/content/endless-midnight-zombie-swarm-assets)
+
+SFX Credits:
+============
+Gunshot: Michel Baradari (https://opengameart.org/content/chaingun-pistol-rifle-shotgun-shots)
