@@ -298,12 +298,14 @@ namespace Game {
 				pToolManager->Draw(!pGameMenu->IsVisible());
 				pToolManager->DrawOnTop(!pGameMenu->IsVisible());
 
-				Entity::CScriptedEntity* pSelectionEntity = pToolManager->GetSelectionEntity();
-				if ((pSelectionEntity != nullptr) && (pToolManager->IsSelectionEntityValid())) {
-					Entity::Vector vecPos = pSelectionEntity->GetPosition();
-					Entity::Vector vecSize = pSelectionEntity->GetSelectionSize();
+				const std::vector<Entity::CScriptedEntity*> vSelEntityList = pToolManager->GetSelectionEntities();
+				for (size_t i = 0; i < vSelEntityList.size(); i++) {
+					if ((vSelEntityList[i] != nullptr) && (pToolManager->IsSelectionEntityValid(i))) {
+						Entity::Vector vecPos = vSelEntityList[i]->GetPosition();
+						Entity::Vector vecSize = vSelEntityList[i]->GetSelectionSize();
 
-					pDxRenderer->DrawBox(vecPos[0] - 2, vecPos[1] - 2, vecSize[0] + 1, vecSize[1] + 1, 1, 200, 200, 200, 150);
+						pDxRenderer->DrawBox(vecPos[0] - 2, vecPos[1] - 2, vecSize[0] + 1, vecSize[1] + 1, 1, 200, 200, 200, 150);
+					}
 				}
 			}
 

@@ -1584,7 +1584,7 @@ namespace Entity {
 		std::vector<gt_list_item_s> m_vTools;
 		HTOOL m_hSelectedTool;
 		Vector m_vMousePos;
-		CScriptedEntity* m_pSelectedEntity;
+		std::vector<CScriptedEntity*> m_vSelectedEntities;
 		bool m_bSurpressSelToolForwarding;
 		DxRenderer::HD3DSPRITE m_hGotoCursor;
 		DxRenderer::HD3DSPRITE m_hPointer;
@@ -1713,7 +1713,7 @@ namespace Entity {
 			pGfxReference->FreeSprite(this->m_hPointer);
 		}
 	public:
-		CToolMgr() : m_hSelectedTool(InvalidToolHandle), m_pSelectedEntity(nullptr), m_bSurpressSelToolForwarding(false), m_bDrawPointer(false), m_bCtrlHeld(false)
+		CToolMgr() : m_hSelectedTool(InvalidToolHandle), m_bSurpressSelToolForwarding(false), m_bDrawPointer(false), m_bCtrlHeld(false)
 		{ 
 			_pGameToolMgrInstance = this;
 
@@ -1755,10 +1755,10 @@ namespace Entity {
 					this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Update();
 					if (this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Elapsed()) {
 						//Needed to not inform the selected tool of a part of mouse click when handling entity selection
-						if (this->m_bSurpressSelToolForwarding) {
-							this->m_bSurpressSelToolForwarding = false;
-						} else {
+						if (!this->m_bSurpressSelToolForwarding) {
 							this->m_vTools[this->m_hSelectedTool].pGameTool->OnTrigger(this->m_vMousePos);
+						} else {
+							this->m_bSurpressSelToolForwarding = false;
 						}
 						this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Reset();
 					}
@@ -1793,13 +1793,11 @@ namespace Entity {
 
 			//Draw cursor of current tool if requested
 			if ((bDrawCursor) && (this->m_hSelectedTool != InvalidToolHandle)) {
-				if ((this->m_pSelectedEntity != nullptr) && (oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()))) {
-					pGfxReference->DrawSprite(this->m_hGotoCursor, this->m_vMousePos[0], this->m_vMousePos[1], 0, 0.0f, - 1, -1, 1.5f, 1.5f, false, 0, 0, 0, 0);
-				}
-				else if (this->m_bDrawPointer) {
+				if (this->m_bDrawPointer) {
 					pGfxReference->DrawSprite(this->m_hPointer, this->m_vMousePos[0], this->m_vMousePos[1], 0, 0.0f, 0.5f, 0.5f, false, 0, 0, 0, 0);
-				}
-				else {
+				} else if (this->m_vSelectedEntities.size() != 0) {
+					pGfxReference->DrawSprite(this->m_hGotoCursor, this->m_vMousePos[0], this->m_vMousePos[1], 0, 0.0f, - 1, -1, 1.5f, 1.5f, false, 0, 0, 0, 0);
+				} else {
 					pGfxReference->DrawSprite(this->m_vTools[this->m_hSelectedTool].hCursor, this->m_vMousePos[0] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[0], this->m_vMousePos[1] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[1], 0, this->m_vTools[this->m_hSelectedTool].fCursorRotation, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
 				}
 			}
@@ -1859,35 +1857,39 @@ namespace Entity {
 			}
 
 			//Clear if not valid anymore
-			if ((this->m_pSelectedEntity != nullptr) && (!oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()))) {
-				this->m_pSelectedEntity = nullptr;
+			for (size_t i = 0; i < this->m_vSelectedEntities.size(); i++) {
+				if ((this->m_vSelectedEntities[i] != nullptr) && (!oScriptedEntMgr.IsValidEntity(this->m_vSelectedEntities[i]->Object()))) {
+					this->m_vSelectedEntities.erase(this->m_vSelectedEntities.begin() + i);
+				}
 			}
 
-			//Process entity selection for movable entities
+			//Process entity movement selection and action
 			if ((iKey == gamekeys.vkTrigger) && (bDown)) {
-				if ((this->m_pSelectedEntity == nullptr)) {
-					if (bCtrlHeld) {
-						for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
-							CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
-							if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
-								Vector vCurPos = pEntity->GetPosition();
-								Vector vSelSize = pEntity->GetSelectionSize();
-								if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
-									this->m_pSelectedEntity = pEntity;
-									this->m_bSurpressSelToolForwarding = true;
-									return;
-								}
+				if (bCtrlHeld) {
+					for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
+						CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
+						if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
+							Vector vCurPos = pEntity->GetPosition();
+							Vector vSelSize = pEntity->GetSelectionSize();
+							if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
+								this->m_vSelectedEntities.push_back(pEntity);
+								this->m_bSurpressSelToolForwarding = true;
+								return;
 							}
 						}
 					}
 				} else {
-					if (oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object())) {
-						this->m_pSelectedEntity->MoveTo(this->m_vMousePos);
+					for (size_t i = 0; i < this->m_vSelectedEntities.size(); i++) {
+						if (this->m_vSelectedEntities[i] != nullptr) {
+							this->m_vSelectedEntities[i]->MoveTo(this->m_vMousePos);
+						}
 					}
 
-					this->m_pSelectedEntity = nullptr;
-					this->m_bSurpressSelToolForwarding = true;
-					return;
+					if (this->m_vSelectedEntities.size() != 0) {
+						this->m_bSurpressSelToolForwarding = true;
+					}
+
+					this->m_vSelectedEntities.clear();
 				}
 			}
 
@@ -1975,8 +1977,8 @@ namespace Entity {
 			}
 			return L"";
 		}
-		CScriptedEntity* GetSelectionEntity(void) { return this->m_pSelectedEntity; }
-		bool IsSelectionEntityValid(void) { if (this->m_pSelectedEntity != nullptr) { return oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()); } else { return false;  } }
+		const std::vector<CScriptedEntity*>& GetSelectionEntities(void) const { return this->m_vSelectedEntities; }
+		bool IsSelectionEntityValid(size_t index) { if ((index < this->m_vSelectedEntities.size()) && (this->m_vSelectedEntities[index] != nullptr)) { return oScriptedEntMgr.IsValidEntity(this->m_vSelectedEntities[index]->Object()); } else { return false;  } }
 	};
 
 	CToolMgr* Initialize(DxRenderer::CDxRenderer* pGfx, DxSound::CDxSound* pSnd, Scripting::CScriptInt* pScr, Console::CConsole* pCns);

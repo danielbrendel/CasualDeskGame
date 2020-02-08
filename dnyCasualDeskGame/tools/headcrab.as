@@ -174,6 +174,8 @@ class CBloodSplash : IScriptedEntity
 
 const float C_HEADCRAB_DEFAULT_SPEED = 2;
 const int C_HEADCRAB_REACT_RANGE = 250;
+const int C_HEADGRAB_ATTACK_RANGE = 50;
+const DamageValue C_HEADGRAB_DAMAGE_VALUE = 5;
 class CHeadcrab : IScriptedEntity
 {
 	Vector m_vecPos;
@@ -184,6 +186,7 @@ class CHeadcrab : IScriptedEntity
 	Timer m_oLifeTime;
 	Timer m_oWalkSound;
 	Timer m_oEnemyCheck;
+	Timer m_oAttack;
 	float m_fShakeRot;
 	float m_fWalkRot;
 	float m_fSpeed;
@@ -230,8 +233,8 @@ class CHeadcrab : IScriptedEntity
 	void LookAt(const Vector &in vPos)
 	{
 		//Look at position
-		const float PI = 3.141592f;
-		this.m_fWalkRot = atan2(float(vPos[1] - this.m_vecPos[1]), float(vPos[0] - this.m_vecPos[0]));
+		float flAngle = atan2(float(vPos[1] - this.m_vecPos[1]), float(vPos[0] - this.m_vecPos[0]));
+		this.m_fWalkRot = flAngle + 6.30 / 4;
 	}
 	
 	void CheckForEnemiesInRange()
@@ -243,7 +246,7 @@ class CHeadcrab : IScriptedEntity
 		
 		for (size_t i = 0; i < Ent_GetEntityCount(); i++) {
 			@pEntity = @Ent_GetEntityHandle(i);
-			if ((@pEntity != null) && (pEntity.GetName() != "Headcrab") && (pEntity.IsDamageable() != DAMAGEABLE_NO)) {
+			if ((@pEntity != null) && (pEntity.GetName() != this.GetName()) && (pEntity.IsDamageable() != DAMAGEABLE_NO)) {
 				if (this.m_vecPos.Distance(pEntity.GetPosition()) <= C_HEADCRAB_REACT_RANGE) {
 					this.m_bGotEnemy = true;
 					break;
@@ -255,7 +258,15 @@ class CHeadcrab : IScriptedEntity
 			if (this.m_fSpeed == C_HEADCRAB_DEFAULT_SPEED)
 				this.m_fSpeed *= 2;
 				
-			//this.LookAt(pEntity.GetPosition());
+			this.LookAt(pEntity.GetPosition());
+
+			if (this.m_vecPos.Distance(pEntity.GetPosition()) <= C_HEADGRAB_ATTACK_RANGE) {
+				this.m_oAttack.Update();
+				if (this.m_oAttack.IsElapsed()) {
+					pEntity.OnDamage(C_HEADGRAB_DAMAGE_VALUE);
+					this.m_oAttack.Reset();
+				}
+			}
 		} else {
 			if (this.m_fSpeed != C_HEADCRAB_DEFAULT_SPEED)
 				this.m_fSpeed = C_HEADCRAB_DEFAULT_SPEED;
@@ -284,6 +295,9 @@ class CHeadcrab : IScriptedEntity
 		this.m_oWalkSound.SetDelay(1000 + Util_Random(1, 2000));
 		this.m_oWalkSound.Reset();
 		this.m_oWalkSound.SetActive(true);
+		this.m_oAttack.SetDelay(1000);
+		this.m_oAttack.Reset();
+		this.m_oAttack.SetActive(true);
 		this.m_hWalkSound = S_QuerySound(g_szToolPath + "walk.wav");
 		this.m_hPainSound = S_QuerySound(g_szToolPath + "hurt.wav");
 		S_PlaySound(this.m_hWalkSound, 8);
@@ -326,11 +340,6 @@ class CHeadcrab : IScriptedEntity
 			S_PlaySound(this.m_hWalkSound, 8);
 		}
 		
-		/*this.m_oEnemyCheck.Update();
-		if (this.m_oEnemyCheck.IsElapsed()) {
-			this.m_oEnemyCheck.Reset();
-			this.CheckForEnemiesInRange();
-		}*/
 		this.CheckForEnemiesInRange();
 		
 		this.Move();
@@ -392,13 +401,13 @@ class CHeadcrab : IScriptedEntity
 	//Return the rotation. This is actually not used by the host application, but might be useful to other entities
 	float GetRotation()
 	{
-		return 0.0;
+		return this.m_fWalkRot;
 	}
 	
 	//Called for querying the damage value for this entity
 	DamageValue GetDamageValue()
 	{
-		return 1;
+		return 0;
 	}
 	
 	//Return a name string here, e.g. the class name or instance name. This is used when DAMAGE_NOTSQUAD is defined as damage-type, but can also be useful to other entities

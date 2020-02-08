@@ -398,7 +398,7 @@ class CBaseSoldierEntity : IScriptedEntity
 	void OnRelease()
 	{
 		CBloodSplash @obj = CBloodSplash();
-		Ent_SpawnEntity(@obj, Vector(this.m_vecPos[0] + 115, this.m_vecPos[1] + 75));
+		Ent_SpawnEntity(@obj, Vector(this.m_vecPos[0], this.m_vecPos[1]));
 	}
 	
 	//Process entity stuff
