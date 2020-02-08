@@ -16,14 +16,15 @@ viewed and downloaded via the ingame menu, too. You can also view/upload taken
 screenshots during gameplay (uploaded screenshots are available via the official 
 game website).
 
-## Keys
-Use: Left mouse button (Use the selected tool)
-Clean: Right mouse button (Clean your "work")
-Menu: TAB (Handle tools, Workshop items, screenshots and view news)
-Team: Space (Change tool team if applicable)
-0-9: Select bound tool
-Screenshot: F10 (Saves a screenshot to disk)
-Console: F11 (A handy tool for developers, e.g., to view scripting errors)
+## Default keys
+Use: Left mouse button (Use the selected tool)\
+Move: Ctrl + left mouse button to select, left mouse button to move (move an entity)\
+Clean: Right mouse button (Clean your "work")\
+Menu: TAB (Handle tools, Workshop items, screenshots and view news)\
+Team: Space (Change tool team if applicable)\
+0-9: Select bound tool\
+Screenshot: F10 (Saves a screenshot to disk)\
+Console: F11 (A handy tool for developers, e.g., to view scripting errors)\
 Exit: ESC (Exits the program)
 
 ## Tools:
