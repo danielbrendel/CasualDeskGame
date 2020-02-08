@@ -1,10 +1,10 @@
 /*
-	Casual Desktop Game (dnycasualDeskGame) v0.8 developed by Daniel Brendel
+	Casual Desktop Game (dnycasualDeskGame) v1.0 developed by Daniel Brendel
 	
 	(C) 2018 - 2020 by Daniel Brendel
 	
 	Tool: Laser Mech (developed by Daniel Brendel)
-	Version: 0.2
+	Version: 0.3
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
@@ -173,6 +173,23 @@ class CExplosion : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 class CDecalSprite : IScriptedEntity
 {
@@ -267,6 +284,23 @@ class CDecalSprite : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CDamageDecal : IScriptedEntity
@@ -368,6 +402,23 @@ class CDamageDecal : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CLaserEntity : IScriptedEntity
@@ -501,9 +552,27 @@ class CLaserEntity : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 const int MECH_TEAM_1 = 1;
 const int MECH_TEAM_2 = 2;
+const int STOP_WALK_RANGE = 58;
 class color_s
 {
 	uint8 r, g, b, a;
@@ -531,6 +600,24 @@ class CLaserMech : IScriptedEntity
 	bool m_bFocusSound;
 	SoundHandle m_hFocus;
 	uint8 m_ucTeam;
+	Vector m_vecSelSize;
+	Vector m_vecTargetDest;
+	bool m_bMove;
+
+	CLaserMech()
+	{
+		this.m_bWalking = true;
+		this.m_bInCombat = false;
+		this.m_fSpeed = 2.0;
+		this.m_iHealth = 400;
+		this.m_dvDamage = 100;
+		this.m_iCombatActivationRange = 350;
+		this.m_iAttackRange = 310;
+		@this.m_pTarget = null;
+		this.m_bFocusSound = false;
+		this.m_vecSelSize = Vector(50, 50);
+		this.m_bMove = false;
+	}
 	
 	uint8 GetTeam()
 	{
@@ -546,6 +633,9 @@ class CLaserMech : IScriptedEntity
 	{
 		//Move mech
 		
+		if (!this.m_bMove)
+			return;
+
 		//Set next position according to view
 		this.m_vecPos[0] += int(sin(this.m_fRotation + 0.014) * this.m_fSpeed);
 		this.m_vecPos[1] -= int(cos(this.m_fRotation + 0.014) * this.m_fSpeed);
@@ -553,6 +643,11 @@ class CLaserMech : IScriptedEntity
 		//Correct if out of screen
 		if (this.m_vecPos[0] < 0) this.m_vecPos[0] = 0; else if (this.m_vecPos[0] > Wnd_GetWindowCenterX() * 2) this.m_vecPos[0] = Wnd_GetWindowCenterX() * 2;
 		if (this.m_vecPos[1] < 0) this.m_vecPos[1] = 0; else if (this.m_vecPos[1] > Wnd_GetWindowCenterY() * 2) this.m_vecPos[1] = Wnd_GetWindowCenterY() * 2;
+
+		//Check for destination reaching
+		if (this.m_vecPos.Distance(this.m_vecTargetDest) < STOP_WALK_RANGE) {
+			this.m_bMove = false;
+		}
 	}
 	
 	void AimTo(const Vector& in vecPos)
@@ -656,19 +751,6 @@ class CLaserMech : IScriptedEntity
 		this.m_pTarget.OnDamage(this.m_dvDamage);
 	}
 	
-	CLaserMech()
-    {	
-		this.m_bWalking = true;
-		this.m_bInCombat = false;
-		this.m_fSpeed = 2.0;
-		this.m_iHealth = 400;
-		this.m_dvDamage = 100;
-		this.m_iCombatActivationRange = 350;
-		this.m_iAttackRange = 310;
-		@this.m_pTarget = null;
-		this.m_bFocusSound = false;
-    }
-	
 	//Called when the entity gets spawned. The position on the screen is passed as argument
 	void OnSpawn(const Vector& in vec)
 	{
@@ -709,15 +791,7 @@ class CLaserMech : IScriptedEntity
 	void OnProcess()
 	{
 		//Handle walking
-		if (this.m_bWalking) {
-			//Process walking direction change
-			this.m_tmrRotChange.Update();
-			if (this.m_tmrRotChange.IsElapsed()) {
-				this.m_tmrRotChange.SetDelay(Util_Random(5000, 7000));
-				this.m_tmrRotChange.Reset();
-				this.m_fRotation = float(Util_Random(1, 630)) / 100;
-			}
-			
+		if ((this.m_bWalking) && (this.m_bMove)) {		
 			//Handle step sound
 			this.m_tmrWalkSound.Update();
 			if (this.m_tmrWalkSound.IsElapsed()) {
@@ -838,6 +912,32 @@ class CLaserMech : IScriptedEntity
 	{
 		return (this.GetTeam() == MECH_TEAM_1) ? "Combat.Team1" : "Combat.Team2";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return true;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecSelSize;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+		//Store target destination
+		this.m_vecTargetDest = vec;
+		
+		//Calculate body rotation
+		float flAngle = atan2(float(vec[1] - this.m_vecPos[1]), float(vec[0] - this.m_vecPos[0]));
+		this.m_fRotation = flAngle + 6.30 / 4;
+
+		//Enable movement
+		this.m_bMove = true;
+	}
 }
 
 /*
@@ -929,7 +1029,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 {
 	info.szName = "Laser Mech";
 	info.szAuthor = "Daniel Brendel";
-	info.szVersion = "0.2";
+	info.szVersion = "0.3";
 	info.szContact = "dbrendel1988<at>yahoo<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "cursor.png";

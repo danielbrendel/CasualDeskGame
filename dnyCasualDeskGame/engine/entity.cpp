@@ -469,6 +469,9 @@ namespace Entity {
 		REG_IFM("IScriptedEntity", "DamageValue GetDamageValue()");
 		REG_IFM("IScriptedEntity", "bool NeedsRemoval()");
 		REG_IFM("IScriptedEntity", "string GetName()");
+		REG_IFM("IScriptedEntity", "bool IsMovable()");
+		REG_IFM("IScriptedEntity", "Vector& GetSelectionSize()");
+		REG_IFM("IScriptedEntity", "void MoveTo(const Vector& in vec)");
 
 		//Register scripting API
 

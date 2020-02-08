@@ -156,6 +156,23 @@ class CDecalSprite : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 class CDecalEntity : IScriptedEntity
 {
@@ -257,6 +274,23 @@ class CDecalEntity : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 

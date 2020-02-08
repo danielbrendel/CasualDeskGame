@@ -4,7 +4,7 @@
 	(C) 2018 - 2020 by Daniel Brendel
 	
 	Tool: Demo (Tool SDK) (developed by Daniel Brendel)
-	Version: 0.2
+	Version: 0.3
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
@@ -58,10 +58,12 @@
 class CScriptedEntityObject : IScriptedEntity
 {
 	Vector m_vecPos;
+	Vector m_vecSelSize;
 	Model m_oModel;
 	
 	CScriptedEntityObject()
     {
+		this.m_vecSelSize = Vector(0, 0);
     }
 	
 	//Called when the entity gets spawned. The position on the screen is passed as argument
@@ -145,6 +147,23 @@ class CScriptedEntityObject : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecSelSize;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 
 /*
@@ -227,7 +246,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 {
 	info.szName = "Example Tool";
 	info.szAuthor = "Daniel Brendel";
-	info.szVersion = "0.2";
+	info.szVersion = "0.3";
 	info.szContact = "dbrendel1988<at>yahoo<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "cursor.png";

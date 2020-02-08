@@ -4,7 +4,7 @@
 	(C) 2018 - 2020 by Daniel Brendel
 	
 	Tool: Soldier (developed by Daniel Brendel)
-	Version: 0.1
+	Version: 0.2
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
@@ -157,12 +157,30 @@ class CBloodSplash : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 const int SOL_STATE_WALKING = 1;
 const int SOL_STATE_COMBAT = 2;
 const int SOL_TEAM_1 = 1;
 const int SOL_TEAM_2 = 2;
 const int MAX_CHECK_RANGE = 300;
+const int STOP_WALK_RANGE = 45;
 class color_s
 {
 	uint8 r, g, b, a;
@@ -183,7 +201,6 @@ class CBaseSoldierEntity : IScriptedEntity
 	SoundHandle m_hStep;
 	float m_fWalkRot;
 	bool m_bWalkRotSwitch;
-	Timer m_tmrRotChange;
 	IScriptedEntity@ m_pTarget;
 	int m_iTeam;
 	int m_iHealth;
@@ -192,6 +209,9 @@ class CBaseSoldierEntity : IScriptedEntity
 	SpriteHandle m_hMuzzle;
 	Timer m_tmrDrawMuzzle;
 	DamageValue m_ucAttackDamage;
+	Vector m_vecSelSize;
+	Vector m_vecTargetDest;
+	bool m_bMove;
 	
 	CBaseSoldierEntity()
     {
@@ -200,6 +220,8 @@ class CBaseSoldierEntity : IScriptedEntity
 		@this.m_pTarget = null;
 		this.m_iHealth = 50;
 		this.m_ucAttackDamage = 5;
+		this.m_vecSelSize = Vector(50, 50);
+		this.m_bMove = false;
     }
 	
 	void SetTeam(int iTeam)
@@ -231,9 +253,6 @@ class CBaseSoldierEntity : IScriptedEntity
 				this.m_tmrStep.SetDelay(500);
 				this.m_tmrStep.Reset();
 				this.m_tmrStep.SetActive(true);
-				this.m_tmrRotChange.SetDelay(5000 + Util_Random(0, 5000));
-				this.m_tmrRotChange.Reset();
-				this.m_tmrRotChange.SetActive(true);
 				this.m_tmrShoot.SetActive(false);
 				this.m_tmrDrawMuzzle.SetActive(false);
 				break;
@@ -241,7 +260,6 @@ class CBaseSoldierEntity : IScriptedEntity
 				this.m_tmrAnimAction.SetDelay(100);
 				this.m_tmrAnimAction.Reset();
 				this.m_tmrStep.SetActive(false);
-				this.m_tmrRotChange.SetActive(false);
 				this.m_tmrShoot.SetDelay(500);
 				this.m_tmrShoot.Reset();
 				this.m_tmrShoot.SetActive(true);
@@ -299,9 +317,16 @@ class CBaseSoldierEntity : IScriptedEntity
 	{
 		//Update position according to speed
 		
+		if (!this.m_bMove)
+			return;
+
 		this.m_vecPos[0] += int(sin(this.m_fRotation) * this.m_fSpeed);
 		this.m_vecPos[1] -= int(cos(this.m_fRotation) * this.m_fSpeed);
 		
+		if (this.m_vecPos.Distance(this.m_vecTargetDest) < STOP_WALK_RANGE) {
+			this.m_bMove = false;
+		}
+
 		if (this.m_vecPos[0] < -313)
 			this.m_vecPos[0] = Wnd_GetWindowCenterX() * 2;
 		else if (this.m_vecPos[0] > Wnd_GetWindowCenterX() * 2 + 313)
@@ -411,22 +436,13 @@ class CBaseSoldierEntity : IScriptedEntity
 		}
 		
 		//Process step timer
-		if (this.m_tmrStep.IsActive()) {
+		if ((this.m_tmrStep.IsActive()) && (this.m_bMove)) {
 			this.m_tmrStep.Update();
 			if (this.m_tmrStep.IsElapsed()) {
 				this.m_tmrStep.Reset();
 				this.m_bWalkRotSwitch = !this.m_bWalkRotSwitch;
 				this.m_fWalkRot = (this.m_bWalkRotSwitch) ? -0.1 : 0.1;
 				S_PlaySound(this.m_hStep, 8);
-			}
-		}
-		
-		//Process rot change timer
-		if (this.m_tmrRotChange.IsActive()) {
-			this.m_tmrRotChange.Update();
-			if (this.m_tmrRotChange.IsElapsed()) {
-				this.m_tmrRotChange.Reset();
-				this.m_fRotation = Util_Random(0, 630) / 100.0;
 			}
 		}
 		
@@ -483,10 +499,10 @@ class CBaseSoldierEntity : IScriptedEntity
 		//Draw animation sprite
 		switch (this.m_iCurrentState) {
 			case SOL_STATE_WALKING:
-				R_DrawSprite(this.m_arrMovement[this.m_iCurrentSprite], this.m_vecPos, 0, this.m_fRotation - 6.30 / 4 + this.m_fWalkRot, Vector(-1, -1), 0.15, 0.15, true, Color(sDrawingColor.r, sDrawingColor.g, sDrawingColor.b, sDrawingColor.a));
+				R_DrawSprite(this.m_arrMovement[this.m_iCurrentSprite], Vector(this.m_vecPos[0] - 125, this.m_vecPos[1] - 90), 0, this.m_fRotation - 6.30 / 4 + this.m_fWalkRot, Vector(-1, -1), 0.15, 0.15, true, Color(sDrawingColor.r, sDrawingColor.g, sDrawingColor.b, sDrawingColor.a));
 				break;
 			case SOL_STATE_COMBAT:
-				R_DrawSprite(this.m_arrShooting[this.m_iCurrentSprite], this.m_vecPos, 0, this.m_fRotation - 6.30 / 4, Vector(-1, -1), 0.15, 0.15, true, Color(sDrawingColor.r, sDrawingColor.g, sDrawingColor.b, sDrawingColor.a));
+				R_DrawSprite(this.m_arrShooting[this.m_iCurrentSprite], Vector(this.m_vecPos[0] - 125, this.m_vecPos[1] - 90), 0, this.m_fRotation - 6.30 / 4, Vector(-1, -1), 0.15, 0.15, true, Color(sDrawingColor.r, sDrawingColor.g, sDrawingColor.b, sDrawingColor.a));
 				break;
 			default:
 				break;
@@ -494,7 +510,7 @@ class CBaseSoldierEntity : IScriptedEntity
 		
 		if (this.m_tmrDrawMuzzle.IsActive()) {
 			Vector vecCenter = this.GetModel().GetCenter();
-			Vector vecMuzzlePos(this.m_vecPos[0] + 25, this.m_vecPos[1] - 25);
+			Vector vecMuzzlePos(this.m_vecPos[0] - 125 + 25, this.m_vecPos[1] - 90 - 25);
 			vecMuzzlePos[0] += int(sin(this.m_fRotation) * 25);
 			vecMuzzlePos[1] -= int(cos(this.m_fRotation) * 25);
 			R_DrawSprite(this.m_hMuzzle, vecMuzzlePos, 0, this.m_fRotation - 6.30 / 4, Vector(-1, -1), 0.3, 0.3, false, Color(0, 0, 0, 0));
@@ -557,6 +573,32 @@ class CBaseSoldierEntity : IScriptedEntity
 	{
 		return "CBaseSoldierEntity";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return true;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecSelSize;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+		//Store target destination
+		this.m_vecTargetDest = vec;
+		
+		//Calculate body rotation
+		float flAngle = atan2(float(vec[1] - this.m_vecPos[1]), float(vec[0] - this.m_vecPos[0]));
+		this.m_fRotation = flAngle + 6.30 / 4;
+
+		//Enable movement
+		this.m_bMove = true;
+	}
 }
 class CSoldierEntity : CBaseSoldierEntity
 {
@@ -612,7 +654,7 @@ void CDG_API_DrawOnTop()
 void CDG_API_Trigger(const Vector& in vAtPos)
 {
 	CSoldierEntity @obj = CSoldierEntity();
-	Ent_SpawnEntity(@obj, Vector(vAtPos[0] - 130, vAtPos[1] - 65));
+	Ent_SpawnEntity(@obj, Vector(vAtPos[0], vAtPos[1]));
 }
 
 /*
@@ -659,7 +701,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 {
 	info.szName = "Soldier";
 	info.szAuthor = "Daniel Brendel";
-	info.szVersion = "0.1";
+	info.szVersion = "0.2";
 	info.szContact = "dbrendel1988<at>yahoo<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "sprites\\move\\survivor-move_shotgun_0.png";

@@ -151,6 +151,23 @@ class CDecalSprite : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 class CBigDecalSprite : IScriptedEntity
 {
@@ -247,6 +264,23 @@ class CBigDecalSprite : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CDamageDecal : IScriptedEntity
@@ -345,6 +379,23 @@ class CDamageDecal : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CExplosion : IScriptedEntity
@@ -477,6 +528,23 @@ class CExplosion : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CNuke : IScriptedEntity
@@ -675,6 +743,23 @@ class CNuke : IScriptedEntity
 	string GetName()
 	{
 		return "Nuke";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 

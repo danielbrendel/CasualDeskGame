@@ -101,3 +101,5 @@ Changelog:
 	+ Changed license to MIT
 	+ Adjustable exit confirmation
 	+ Upgrade project to MSVC++ 2019
+	+ Entities can now be pointed to a target destination
+	+ tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user

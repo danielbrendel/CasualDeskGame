@@ -1,10 +1,10 @@
 /*
-	Casual Desktop Game (dnycasualDeskGame) v1.0 developed by Daniel Brendel
+	Casual Desktop Game (dnycasualDeskGame) v0.8 developed by Daniel Brendel
 	
 	(C) 2018 - 2020 by Daniel Brendel
 	
 	Tool: TC Dual-gun Tank (developed by Daniel Brendel)
-	Version: 0.2
+	Version: 0.3
 	Contact: dbrendel1988<at>yahoo<dot>com
 	GitHub: https://github.com/danielbrendel
 
@@ -173,6 +173,23 @@ class CExplosion : IScriptedEntity
 	{
 		return "";
 	}
+
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 class CDecalSprite : IScriptedEntity
 {
@@ -267,6 +284,23 @@ class CDecalSprite : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 class CDamageDecal : IScriptedEntity
@@ -369,9 +403,27 @@ class CDamageDecal : IScriptedEntity
 	{
 		return "";
 	}
+
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 const int TANK_TEAM_1 = 1;
 const int TANK_TEAM_2 = 2;
+const int STOP_WALK_RANGE = 58;
 class TankAttributes
 {
 	int Health;
@@ -399,7 +451,6 @@ class CBaseTank : IScriptedEntity
 	float m_flAimDest;
 	float m_flAimStep;
 	Timer m_tmrMovement;
-	Timer m_tmrDirChange;
 	Timer m_tmrDirMove;
 	float m_flDirDest;
 	IScriptedEntity@ m_pTarget;
@@ -407,10 +458,15 @@ class CBaseTank : IScriptedEntity
 	SoundHandle m_hFireSound;
 	Timer m_tmrMuzzle;
 	SpriteHandle m_hMuzzle;
+	Vector m_vecSelSize;
+	Vector m_vecTargetDest;
+	bool m_bMove;
 	
 	CBaseTank()
     {
 		@m_pTarget = null;
+		this.m_vecSelSize = Vector(50, 50);
+		this.m_bMove = false;
     }
 	
 	//Getters
@@ -434,9 +490,6 @@ class CBaseTank : IScriptedEntity
 	{
 		//Init aiming process
 		
-		//if ((this.m_tmrAiming.IsActive()) || (this.m_tmrAttack.IsActive()))
-		//	return;
-		
 		//Calculate aim rotation
 		float flAngle = atan2(float(vecPos[1] - this.m_vecPosition[1]), float(vecPos[0] - this.m_vecPosition[0]));
 		this.m_flHeadRot = flAngle + 6.30 / 4;
@@ -447,27 +500,14 @@ class CBaseTank : IScriptedEntity
 			this.m_tmrAttack.Reset();
 			this.m_tmrAttack.SetActive(true);
 		}
-		//Calculate rotation value
-		/*float flAngle = atan2(float(vecPos[1] - this.m_vecPosition[1]), float(vecPos[0] - this.m_vecPosition[0]));
-		this.m_flAimDest = flAngle + 6.30 / 4;
-		
-		//Calculate step value
-		float flAddRange = this.m_flAimDest - this.m_flHeadRot;
-		float flSubRange = 6.30 - this.m_flAimDest + this.m_flHeadRot;
-		if (flAddRange < flSubRange)
-			this.m_flAimStep = this.m_sTankAttrs.Rotation;
-		else
-			this.m_flAimStep = -this.m_sTankAttrs.Rotation;
-		
-		//Init timer
-		this.m_tmrAiming.SetDelay(100);
-		this.m_tmrAiming.Reset();
-		this.m_tmrAiming.SetActive(true);*/
 	}
 	void Move()
 	{
 		//Move tank
 		
+		if (!this.m_bMove)
+			return;
+
 		//Set next position according to view
 		this.m_vecPosition[0] += int(sin(this.m_flBodyRot + 0.014) * this.m_sTankAttrs.Speed);
 		this.m_vecPosition[1] -= int(cos(this.m_flBodyRot + 0.014) * this.m_sTankAttrs.Speed);
@@ -475,6 +515,11 @@ class CBaseTank : IScriptedEntity
 		//Correct if out of screen
 		if (this.m_vecPosition[0] < 0) this.m_vecPosition[0] = 0; else if (this.m_vecPosition[0] > Wnd_GetWindowCenterX() * 2) this.m_vecPosition[0] = Wnd_GetWindowCenterX() * 2;
 		if (this.m_vecPosition[1] < 0) this.m_vecPosition[1] = 0; else if (this.m_vecPosition[1] > Wnd_GetWindowCenterY() * 2) this.m_vecPosition[1] = Wnd_GetWindowCenterY() * 2;
+
+		//Check for destination reaching
+		if (this.m_vecPosition.Distance(this.m_vecTargetDest) < STOP_WALK_RANGE) {
+			this.m_bMove = false;
+		}
 	}
 	void ValidateTarget()
 	{
@@ -500,7 +545,7 @@ class CBaseTank : IScriptedEntity
 				}
 				
 				//Check if enemy in range
-				if ((this.m_vecPosition.Distance(pEntity.GetPosition()) < MAX_CHECK_RANGE)) {
+				if (this.m_vecPosition.Distance(pEntity.GetPosition()) < MAX_CHECK_RANGE) {
 					@pTargetEnt = @pEntity;
 				}
 			}
@@ -561,9 +606,6 @@ class CBaseTank : IScriptedEntity
 		this.m_tmrMovement.SetDelay(100);
 		this.m_tmrMovement.Reset();
 		this.m_tmrMovement.SetActive(true);
-		this.m_tmrDirChange.SetDelay(Util_Random(5000, 10000));
-		this.m_tmrDirChange.Reset();
-		this.m_tmrDirChange.SetActive(true);
 		BoundingBox bbox;
 		bbox.Alloc();
 		bbox.AddBBoxItem(Vector(0, 0), Vector(this.m_sTankAttrs.BodySize[0], this.m_sTankAttrs.BodySize[1]));
@@ -597,20 +639,6 @@ class CBaseTank : IScriptedEntity
 			}
 		}
 		
-		//Process directory change
-		if ((this.m_tmrDirChange.IsActive()) && (!this.m_tmrAttack.IsActive())) {
-			this.m_tmrDirChange.Update();
-			if (this.m_tmrDirChange.IsElapsed()) {
-				//Calculate new destination body rotation value
-				this.m_flDirDest = float(Util_Random(1, 630)) / 100;
-				//Activate rotation change timer
-				this.m_tmrDirMove.SetDelay(100);
-				this.m_tmrDirMove.Reset();
-				this.m_tmrDirMove.SetActive(true);
-				//Deactivate this timer
-				this.m_tmrDirChange.SetActive(false);
-			}
-		}
 		if (this.m_tmrDirMove.IsActive()) {
 			this.m_tmrDirMove.Update();
 			//Add rotation value to body rotation
@@ -621,9 +649,6 @@ class CBaseTank : IScriptedEntity
 			//Deactivate body rotation change if reached dest rotation
 			if (closeTo(this.m_flBodyRot, this.m_flDirDest, 0.01f)) {
 				this.m_tmrDirMove.SetActive(false);
-				this.m_tmrDirChange.SetDelay(Util_Random(5000, 10000));
-				this.m_tmrDirChange.Reset();
-				this.m_tmrDirChange.SetActive(true);
 			}
 		}
 		
@@ -758,6 +783,32 @@ class CBaseTank : IScriptedEntity
 	{
 		return "CBaseTank";
 	}
+
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return true;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecSelSize;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+		//Store target destination
+		this.m_vecTargetDest = vec;
+		
+		//Calculate body rotation
+		float flAngle = atan2(float(vec[1] - this.m_vecPosition[1]), float(vec[0] - this.m_vecPosition[0]));
+		this.m_flBodyRot = flAngle + 6.30 / 4;
+
+		//Enable movement
+		this.m_bMove = true;
+	}
 }
 class CDualgunTank : CBaseTank
 {
@@ -868,7 +919,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 {
 	info.szName = "TC - Dual-gun Tank";
 	info.szAuthor = "Daniel Brendel";
-	info.szVersion = "0.2";
+	info.szVersion = "0.3";
 	info.szContact = "dbrendel1988<at>yahoo<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "cursor.png";

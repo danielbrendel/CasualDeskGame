@@ -141,7 +141,13 @@ namespace Game {
 			if (pToolManager) pToolManager->OnKeyEvent(vKey, bDown);
 
 			if (vKey == sGameKeys.vkMenu) {
-				if (bDown) pGameMenu->Toggle();
+				if (bDown) {
+					pGameMenu->Toggle();
+
+					if ((pGameMenu->IsVisible()) && (pExitMenu->IsVisible())) {
+						pExitMenu->Toggle();
+					}
+				}
 			}
 			else if (vKey == sGameKeys.vkScrollUp) {
 				if (pGameMenu->IsVisible()) { if (bDown) pGameMenu->ScrollUp(); }
@@ -231,7 +237,7 @@ namespace Game {
 			if (!iMouseKey)
 				vCursorPos = Entity::Vector(x, y);
 
-			if (pToolManager) pToolManager->OnMouseEvent(x, y, iMouseKey, bDown);
+			if (pToolManager) pToolManager->OnMouseEvent(x, y, iMouseKey, bDown, bCtrlHeld, sGameKeys);
 			if ((pGameMenu) && (pGameMenu->IsVisible())) pGameMenu->UpdateCursorPos(vCursorPos);
 
 			if (iMouseKey == sGameKeys.vkTrigger) {
@@ -291,6 +297,14 @@ namespace Game {
 			if (pToolManager) {
 				pToolManager->Draw(!pGameMenu->IsVisible());
 				pToolManager->DrawOnTop(!pGameMenu->IsVisible());
+
+				Entity::CScriptedEntity* pSelectionEntity = pToolManager->GetSelectionEntity();
+				if ((pSelectionEntity != nullptr) && (pToolManager->IsSelectionEntityValid())) {
+					Entity::Vector vecPos = pSelectionEntity->GetPosition();
+					Entity::Vector vecSize = pSelectionEntity->GetSelectionSize();
+
+					pDxRenderer->DrawBox(vecPos[0] - 2, vecPos[1] - 2, vecSize[0] + 1, vecSize[1] + 1, 1, 200, 200, 200, 150);
+				}
 			}
 
 			if ((pGameMenu) && (pGameMenu->IsVisible())) {

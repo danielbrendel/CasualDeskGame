@@ -1695,6 +1695,7 @@ namespace Menu {
 		Entity::Vector m_vDrawPos;
 		std::wstring m_wszMenuKeyName;
 		TpfnOnConfirmPrompt m_pfnConfirmPrompt;
+		bool m_bFlagValue;
 	public:
 		CExitMenu() : m_pRenderer(nullptr), m_bVisible(false), m_wszMenuKeyName(L""), m_pfnConfirmPrompt(nullptr) {}
 		CExitMenu(DxRenderer::CDxRenderer* pRenderer, TpfnOnConfirmPrompt pEventFunction) 
@@ -1714,6 +1715,9 @@ namespace Menu {
 			if (iCopyResult != 0) {
 				this->m_wszMenuKeyName = wszName;
 			}
+
+			//Set flag value
+			this->m_bFlagValue = Menu::bShallConfirmOnExit;
 		}
 		~CExitMenu() {}
 
@@ -1733,6 +1737,13 @@ namespace Menu {
 			//Draw info message
 			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"(Press " + this->m_wszMenuKeyName + L" to open the menu)", this->m_vDrawPos[0] + 6, this->m_vDrawPos[1] + 25, 200, 200, 200, 150);
 
+			//Draw checkbox content
+			this->m_pRenderer->DrawBox(this->m_vDrawPos[0] + 20, this->m_vDrawPos[1] + 53, 10, 10, 1, 0, 122, 204, 150);
+			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"Do not ask again", this->m_vDrawPos[0] + 20 + 15, this->m_vDrawPos[1] + 50, 200, 200, 200, 150);
+			if (!this->m_bFlagValue) {
+				this->m_pRenderer->DrawFilledBox(this->m_vDrawPos[0] + 22, this->m_vDrawPos[1] + 55, 7, 7, 0, 122, 204, 150);
+			}
+
 			//Draw buttons
 			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"Yes", this->m_vDrawPos[0] + 14, this->m_vDrawPos[1] + 80, 200, 200, 200, 150);
 			this->m_pRenderer->DrawString(Menu::DefaultFontHandle, L"No", this->m_vDrawPos[0] + 335, this->m_vDrawPos[1] + 80, 200, 200, 200, 150);
@@ -1743,10 +1754,14 @@ namespace Menu {
 			//Handle click events
 
 			if ((vPos[0] >= this->m_vDrawPos[0] + 14) && (vPos[0] <= this->m_vDrawPos[0] + 14 + 20) && (vPos[1] >= this->m_vDrawPos[1] + 80) && (vPos[1] <= this->m_vDrawPos[1] + 80 + 20)) {
+				Menu::bShallConfirmOnExit = this->m_bFlagValue;
 				this->m_pfnConfirmPrompt();
 			}
 			else if ((vPos[0] >= this->m_vDrawPos[0] + 335) && (vPos[0] <= this->m_vDrawPos[0] + 335 + 20) && (vPos[1] >= this->m_vDrawPos[1] + 80) && (vPos[1] <= this->m_vDrawPos[1] + 80 + 20)) {
 				this->Hide();
+			}
+			else if ((vPos[0] >= this->m_vDrawPos[0] + 20) && (vPos[0] <= this->m_vDrawPos[0] + 20 + 100) && (vPos[1] >= this->m_vDrawPos[1] + 53) && (vPos[1] <= this->m_vDrawPos[1] + 53 + 10)) {
+				this->m_bFlagValue = !this->m_bFlagValue;
 			}
 		}
 

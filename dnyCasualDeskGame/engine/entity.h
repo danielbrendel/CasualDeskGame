@@ -835,6 +835,28 @@ namespace Entity {
 			return flResult;
 		}
 
+		bool IsMovable(void)
+		{
+			//Query movable indicator
+
+			bool bResult;
+
+			pScrReference->CallScriptMethod(this->m_hScript, this->m_pScriptObject, "bool IsMovable()", nullptr, &bResult, Scripting::FA_BYTE);
+
+			return bResult;
+		}
+
+		Vector GetSelectionSize(void)
+		{
+			//Query selection size
+
+			Vector* pResult;
+
+			pScrReference->CallScriptMethod(this->m_hScript, this->m_pScriptObject, "Vector& GetSelectionSize()", nullptr, &pResult, Scripting::FA_OBJECT);
+
+			return *pResult;
+		}
+
 		DamageValue GetDamageValue(void)
 		{
 			//Get damage value
@@ -866,6 +888,20 @@ namespace Entity {
 			pScrReference->CallScriptMethod(this->m_hScript, this->m_pScriptObject, "string GetName()", nullptr, &szResult, Scripting::FA_STRING);
 
 			return szResult;
+		}
+
+		void MoveTo(const Vector& vToPos)
+		{
+			//Inform to move to a target
+
+			Vector v(vToPos);
+
+			BEGIN_PARAMS(vArgs);
+			PUSH_OBJECT(&v);
+
+			pScrReference->CallScriptMethod(this->m_hScript, this->m_pScriptObject, "void MoveTo(const Vector& in vec)", &vArgs, nullptr);
+
+			END_PARAMS(vArgs);
 		}
 
 		//Getters
@@ -1548,6 +1584,12 @@ namespace Entity {
 		std::vector<gt_list_item_s> m_vTools;
 		HTOOL m_hSelectedTool;
 		Vector m_vMousePos;
+		CScriptedEntity* m_pSelectedEntity;
+		bool m_bSurpressSelToolForwarding;
+		DxRenderer::HD3DSPRITE m_hGotoCursor;
+		DxRenderer::HD3DSPRITE m_hPointer;
+		bool m_bDrawPointer;
+		bool m_bCtrlHeld;
 
 		bool QueryToolInfo(gt_list_item_s& sGtData, const game_keys_s& gamekeys)
 		{
@@ -1665,9 +1707,19 @@ namespace Entity {
 
 			//Clear list
 			this->m_vTools.clear();
+
+			//Free sprites
+			pGfxReference->FreeSprite(this->m_hGotoCursor);
+			pGfxReference->FreeSprite(this->m_hPointer);
 		}
 	public:
-		CToolMgr() : m_hSelectedTool(InvalidToolHandle) { _pGameToolMgrInstance = this; }
+		CToolMgr() : m_hSelectedTool(InvalidToolHandle), m_pSelectedEntity(nullptr), m_bSurpressSelToolForwarding(false), m_bDrawPointer(false), m_bCtrlHeld(false)
+		{ 
+			_pGameToolMgrInstance = this;
+
+			this->m_hGotoCursor = pGfxReference->LoadSprite(L"res\\gotocursor.png", 1, 32, 32, 1, false);
+			this->m_hPointer = pGfxReference->LoadSprite(L"res\\pointer.png", 1, 72, 72, 1, false);
+		}
 		~CToolMgr() { this->Release(); }
 
 
@@ -1702,7 +1754,12 @@ namespace Entity {
 				if (this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Started()) {
 					this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Update();
 					if (this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Elapsed()) {
-						this->m_vTools[this->m_hSelectedTool].pGameTool->OnTrigger(this->m_vMousePos);
+						//Needed to not inform the selected tool of a part of mouse click when handling entity selection
+						if (this->m_bSurpressSelToolForwarding) {
+							this->m_bSurpressSelToolForwarding = false;
+						} else {
+							this->m_vTools[this->m_hSelectedTool].pGameTool->OnTrigger(this->m_vMousePos);
+						}
 						this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Reset();
 					}
 				}
@@ -1736,7 +1793,15 @@ namespace Entity {
 
 			//Draw cursor of current tool if requested
 			if ((bDrawCursor) && (this->m_hSelectedTool != InvalidToolHandle)) {
-				pGfxReference->DrawSprite(this->m_vTools[this->m_hSelectedTool].hCursor, this->m_vMousePos[0] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[0], this->m_vMousePos[1] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[1], 0, this->m_vTools[this->m_hSelectedTool].fCursorRotation, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
+				if ((this->m_pSelectedEntity != nullptr) && (oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()))) {
+					pGfxReference->DrawSprite(this->m_hGotoCursor, this->m_vMousePos[0], this->m_vMousePos[1], 0, 0.0f, - 1, -1, 1.5f, 1.5f, false, 0, 0, 0, 0);
+				}
+				else if (this->m_bDrawPointer) {
+					pGfxReference->DrawSprite(this->m_hPointer, this->m_vMousePos[0], this->m_vMousePos[1], 0, 0.0f, 0.5f, 0.5f, false, 0, 0, 0, 0);
+				}
+				else {
+					pGfxReference->DrawSprite(this->m_vTools[this->m_hSelectedTool].hCursor, this->m_vMousePos[0] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[0], this->m_vMousePos[1] + this->m_vTools[this->m_hSelectedTool].vCursorOffset[1], 0, this->m_vTools[this->m_hSelectedTool].fCursorRotation, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
+				}
 			}
 		}
 
@@ -1767,7 +1832,7 @@ namespace Entity {
 			}
 		}
 
-		void OnMouseEvent(int x, int y, int iKey, bool bDown)
+		void OnMouseEvent(int x, int y, int iKey, bool bDown, bool bCtrlHeld, const game_keys_s& gamekeys)
 		{
 			//Inform of mouse event
 
@@ -1775,6 +1840,55 @@ namespace Entity {
 			if (iKey == 0) {
 				this->m_vMousePos[0] = x;
 				this->m_vMousePos[1] = y;
+
+				this->m_bDrawPointer = false;
+
+				if (GetAsyncKeyState(VK_CONTROL) & (1 << 15)) {
+					for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
+						CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
+						if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
+							Vector vCurPos = pEntity->GetPosition();
+							Vector vSelSize = pEntity->GetSelectionSize();
+							if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
+								this->m_bDrawPointer = true;
+								return;
+							}
+						}
+					}
+				}
+			}
+
+			//Clear if not valid anymore
+			if ((this->m_pSelectedEntity != nullptr) && (!oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()))) {
+				this->m_pSelectedEntity = nullptr;
+			}
+
+			//Process entity selection for movable entities
+			if ((iKey == gamekeys.vkTrigger) && (bDown)) {
+				if ((this->m_pSelectedEntity == nullptr)) {
+					if (bCtrlHeld) {
+						for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
+							CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
+							if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
+								Vector vCurPos = pEntity->GetPosition();
+								Vector vSelSize = pEntity->GetSelectionSize();
+								if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
+									this->m_pSelectedEntity = pEntity;
+									this->m_bSurpressSelToolForwarding = true;
+									return;
+								}
+							}
+						}
+					}
+				} else {
+					if (oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object())) {
+						this->m_pSelectedEntity->MoveTo(this->m_vMousePos);
+					}
+
+					this->m_pSelectedEntity = nullptr;
+					this->m_bSurpressSelToolForwarding = true;
+					return;
+				}
 			}
 
 			//Inform tools
@@ -1861,6 +1975,8 @@ namespace Entity {
 			}
 			return L"";
 		}
+		CScriptedEntity* GetSelectionEntity(void) { return this->m_pSelectedEntity; }
+		bool IsSelectionEntityValid(void) { if (this->m_pSelectedEntity != nullptr) { return oScriptedEntMgr.IsValidEntity(this->m_pSelectedEntity->Object()); } else { return false;  } }
 	};
 
 	CToolMgr* Initialize(DxRenderer::CDxRenderer* pGfx, DxSound::CDxSound* pSnd, Scripting::CScriptInt* pScr, Console::CConsole* pCns);

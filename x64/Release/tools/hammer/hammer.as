@@ -1,5 +1,5 @@
 /*
-	Casual Desktop Game (dnycasualDeskGame) v0.8 developed by Daniel Brendel
+	Casual Desktop Game (dnycasualDeskGame) v1.0 developed by Daniel Brendel
 	
 	(C) 2018 - 2020 by Daniel Brendel
 	
@@ -158,6 +158,23 @@ class CCrashEntity : IScriptedEntity
 	{
 		return "";
 	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
+	}
 }
 class CCrashDecal : IScriptedEntity
 {
@@ -257,6 +274,23 @@ class CCrashDecal : IScriptedEntity
 	string GetName()
 	{
 		return "";
+	}
+	
+	//Indicate if this entity is movable
+	bool IsMovable()
+	{
+		return false;
+	}
+	
+	//This vector is used for drawing the selection box
+	Vector& GetSelectionSize()
+	{
+		return this.m_vecPos;
+	}
+	
+	//This method is used to set the movement destination position
+	void MoveTo(const Vector& in vec)
+	{
 	}
 }
 
