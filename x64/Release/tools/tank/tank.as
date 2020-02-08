@@ -1,5 +1,5 @@
 /*
-	Casual Desktop Game (dnycasualDeskGame) v0.8 developed by Daniel Brendel
+	Casual Desktop Game (dnycasualDeskGame) v1.0 developed by Daniel Brendel
 	
 	(C) 2018 - 2020 by Daniel Brendel
 	
