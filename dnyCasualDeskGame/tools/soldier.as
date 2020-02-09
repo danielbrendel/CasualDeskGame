@@ -5,7 +5,7 @@
 	
 	Tool: Soldier (developed by Daniel Brendel)
 	Version: 0.2
-	Contact: dbrendel1988<at>yahoo<dot>com
+	Contact: dbrendel1988<at>gmail<dot>com
 	GitHub: https://github.com/danielbrendel
 
 	License: see LICENSE.txt
@@ -702,7 +702,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 	info.szName = "Soldier";
 	info.szAuthor = "Daniel Brendel";
 	info.szVersion = "0.2";
-	info.szContact = "dbrendel1988<at>yahoo<dot>com";
+	info.szContact = "dbrendel1988<at>gmail<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "sprites\\move\\survivor-move_shotgun_0.png";
 	info.szCategory = "Military";

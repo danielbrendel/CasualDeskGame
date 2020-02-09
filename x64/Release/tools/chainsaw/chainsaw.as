@@ -5,7 +5,7 @@
 	
 	Tool: Chainsaw (developed by Daniel Brendel)
 	Version: 0.1
-	Contact: dbrendel1988<at>yahoo<dot>com
+	Contact: dbrendel1988<at>gmail<dot>com
 	GitHub: https://github.com/danielbrendel
 
 	License: see LICENSE.txt
@@ -411,7 +411,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 	info.szName = "Chainsaw";
 	info.szAuthor = "Daniel Brendel";
 	info.szVersion = "0.1";
-	info.szContact = "dbrendel1988<at>yahoo<dot>com";
+	info.szContact = "dbrendel1988<at>gmail<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "chainsaw.png";
 	info.szCategory = "Weapons";

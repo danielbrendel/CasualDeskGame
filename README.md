@@ -3,7 +3,7 @@
 (C) 2018 - 2020 by Daniel Brendel
 
 **Version**: 1.0\
-**Contact**: dbrendel1988 at yahoo com\
+**Contact**: dbrendel1988 at gmail com\
 **GitHub**: [GitHub](https://github.com/danielbrendel)\
 **License**: see LICENSE.txt
 
