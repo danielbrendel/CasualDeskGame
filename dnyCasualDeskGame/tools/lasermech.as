@@ -6,7 +6,7 @@
 	Tool: Laser Mech (developed by Daniel Brendel)
 	Version: 0.3
 	Contact: dbrendel1988<at>gmail<dot>com
-	GitHub: https://github.com/danielbrendel
+	GitHub: https://github.com/danielbrendel/
 
 	License: see LICENSE.txt
 */

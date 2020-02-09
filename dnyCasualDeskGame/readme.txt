@@ -5,7 +5,7 @@ Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
 
 Version: 1.0
 Contact: dbrendel1988<at>gmail<dot>com
-GitHub: https://github.com/danielbrendel
+GitHub: https://github.com/danielbrendel/
 License: see LICENSE.txt
 
 This program is a casual game with the purpose to pass time via spawning and 
