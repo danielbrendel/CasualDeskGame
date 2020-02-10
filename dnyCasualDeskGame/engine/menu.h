@@ -1425,7 +1425,6 @@ namespace Menu {
 		private:
 			DxRenderer::CDxRenderer* m_pRenderer;
 			Entity::Vector m_vecBodyStart;
-			CMenuDropDown* m_pMenuDropDown;
 			size_t m_uiContextMenuItem;
 		public:
 			CMenuCatBackgrounds() : IMenuItemContainer<SubItemCatBackgrounds>(), m_pRenderer(nullptr), m_uiContextMenuItem(-1) {}
@@ -1461,10 +1460,6 @@ namespace Menu {
 			~CMenuCatBackgrounds()
 			{
 				//Release resources
-
-				if (this->m_pMenuDropDown) {
-					delete this->m_pMenuDropDown;
-				}
 
 				for (size_t i = 0; i < this->GetSubItemCount(); i++) {
 					SubItemCatBackgrounds* pItem = this->GetSubItem(i);
@@ -1517,6 +1512,10 @@ namespace Menu {
 				//Draw additional stuff
 
 				IMenuItemContextMenu::Draw(this->GetCursorPos());
+
+				if (!this->GetSubItemCount()) {
+					this->m_pRenderer->DrawString(DefaultFontHandle, L"There are no backgrounds in the associated folder.", vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
+				}
 			}
 			virtual void OnClick(const Entity::Vector& vCursorPos, MouseKey_e eMouseKey)
 			{
