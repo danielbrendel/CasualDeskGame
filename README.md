@@ -27,6 +27,11 @@ Screenshot: F10 (Saves a screenshot to disk)\
 Console: F11 (A handy tool for developers, e.g., to view scripting errors)\
 Exit: ESC (Exits the program)
 
+## Background images
+You can use background images. Therefore copy your image files into the
+backgrounds directory. They will then be available via the ingame menu
+and you can then select them to be drawn instead of the desktop background.
+
 ## Tools:
 The following basic steps are required to create a tool:
 * Create a new folder inside the tool directory and name it according
@@ -103,3 +108,4 @@ The following basic steps are required to create a tool:
 	* tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user
 	* headcrab does now attack opponents
 	* New tool 'pistol'
+	* Background image feature implemented

@@ -1275,7 +1275,7 @@ namespace Menu {
 		};
 
 		struct SubItemCatSettings { byte ucNone; };
-		class CMenuCatSettings : public IMenuItemContainer<SubItemCatNews> { //Handler for settings
+		class CMenuCatSettings : public IMenuItemContainer<SubItemCatSettings> { //Handler for settings
 		private:
 			DxRenderer::CDxRenderer* m_pRenderer;
 			DxSound::CDxSound* m_pSound;
@@ -1286,8 +1286,8 @@ namespace Menu {
 			size_t m_uiLastSelection;
 			Entity::CToolMgr* m_pToolMgr;
 		public:
-			CMenuCatSettings() : IMenuItemContainer<SubItemCatNews>(), m_pRenderer(nullptr), m_pSound(nullptr), m_uiSelectedToolBinding(-1), m_pToolMgr(nullptr), m_uiLastSelection(-1), m_pToolBindings(nullptr) {}
-			CMenuCatSettings(const std::wstring& wszText, DxRenderer::CDxRenderer* pRenderer, DxSound::CDxSound* pSound, Entity::CToolMgr* pToolMgr, std::vector<std::vector<std::wstring>>* pToolBindings) : IMenuItemContainer<SubItemCatNews>(wszText), m_pRenderer(pRenderer), m_pSound(pSound), m_pToolMgr(pToolMgr), m_pToolBindings(pToolBindings), m_uiSelectedToolBinding(-1), m_uiLastSelection(-1)
+			CMenuCatSettings() : IMenuItemContainer<SubItemCatSettings>(), m_pRenderer(nullptr), m_pSound(nullptr), m_uiSelectedToolBinding(-1), m_pToolMgr(nullptr), m_uiLastSelection(-1), m_pToolBindings(nullptr) {}
+			CMenuCatSettings(const std::wstring& wszText, DxRenderer::CDxRenderer* pRenderer, DxSound::CDxSound* pSound, Entity::CToolMgr* pToolMgr, std::vector<std::vector<std::wstring>>* pToolBindings) : IMenuItemContainer<SubItemCatSettings>(wszText), m_pRenderer(pRenderer), m_pSound(pSound), m_pToolMgr(pToolMgr), m_pToolBindings(pToolBindings), m_uiSelectedToolBinding(-1), m_uiLastSelection(-1)
 			{
 				//Instantiate resources
 				this->m_pMenuDropDown = new CMenuDropDown(pRenderer, Entity::Vector(0, 0), 135);
@@ -1418,6 +1418,128 @@ namespace Menu {
 			virtual DxRenderer::HD3DSPRITE GetSubItemPreviewImage(const size_t uiItemId) { return nullptr; }
 		};
 
+		struct SubItemCatBackgrounds { std::wstring wszName; DxRenderer::HD3DSPRITE hPreview; D3DXIMAGE_INFO sInfo;  SubItemCatBackgrounds(const std::wstring& wsz, DxRenderer::HD3DSPRITE prv, const D3DXIMAGE_INFO& info) : wszName(wsz), hPreview(prv), sInfo(info) {} };
+		class CMenuCatBackgrounds : public IMenuItemContainer<SubItemCatBackgrounds>, IMenuItemContextMenu { //Handler for backgrounds
+		public:
+			static const size_t ContextMenuItemSelect = 0;
+		private:
+			DxRenderer::CDxRenderer* m_pRenderer;
+			Entity::Vector m_vecBodyStart;
+			CMenuDropDown* m_pMenuDropDown;
+			size_t m_uiContextMenuItem;
+		public:
+			CMenuCatBackgrounds() : IMenuItemContainer<SubItemCatBackgrounds>(), m_pRenderer(nullptr), m_uiContextMenuItem(-1) {}
+			CMenuCatBackgrounds(const std::wstring& wszText, DxRenderer::CDxRenderer* pRenderer) : IMenuItemContainer<SubItemCatBackgrounds>(wszText), m_pRenderer(pRenderer), m_uiContextMenuItem(-1)
+			{
+				//Construct context menu and load all backgrounds
+
+				IMenuItemContextMenu::SetDrawingInterface(pRenderer);
+				IMenuItemContextMenu::SetFontDims(Entity::Vector(DefaultFontSizeW, DefaultFontSizeH));
+				IMenuItemContextMenu::SetColors(Entity::Color(0, 162, 232, 150), Entity::Color(231, 231, 232, 150), Entity::Color(0, 0, 0, 150));
+				IMenuItemContextMenu::AddContextMenuItem(L"Select", CMenuCatBackgrounds::ContextMenuItemSelect);
+
+				WIN32_FIND_DATAW sFindData = { 0 };
+				HANDLE hFindData = FindFirstFileW(L"backgrounds\\*.*", &sFindData);
+				if (hFindData != INVALID_HANDLE_VALUE) {
+					while (FindNextFile(hFindData, &sFindData)) {
+						if (sFindData.cFileName[0] == '.') {
+							continue;
+						}
+
+						D3DXIMAGE_INFO sImageInfo;
+						if (pRenderer->GetSpriteInfo(std::wstring(L"backgrounds\\" + std::wstring(sFindData.cFileName)), sImageInfo)) {
+							DxRenderer::HD3DSPRITE hPreview = pRenderer->LoadSprite(std::wstring(L"backgrounds\\" + std::wstring(sFindData.cFileName)), 1, SettingMenuPreviewItemResW, SettingMenuPreviewItemResH, 1, true);
+							if (hPreview != GFX_INVALID_SPRITE_ID) {
+								this->AddSubItem(new SubItemCatBackgrounds(sFindData.cFileName, hPreview, sImageInfo));
+							}
+						}
+					}
+
+					CloseHandle(hFindData);
+				}
+			}
+			~CMenuCatBackgrounds()
+			{
+				//Release resources
+
+				if (this->m_pMenuDropDown) {
+					delete this->m_pMenuDropDown;
+				}
+
+				for (size_t i = 0; i < this->GetSubItemCount(); i++) {
+					SubItemCatBackgrounds* pItem = this->GetSubItem(i);
+					if (pItem != nullptr) {
+						this->m_pRenderer->FreeSprite(pItem->hPreview);
+					}
+				}
+			}
+
+			virtual void OnShow(void)
+			{
+				//Initialize data on show event
+			}
+			virtual void HandleContextMenuItem(const size_t uiIdentifier)
+			{
+				//Handle clicked items
+
+				switch (uiIdentifier) {
+				case CMenuCatBackgrounds::ContextMenuItemSelect: {
+					SubItemCatBackgrounds* pItem = this->GetSubItem(this->m_uiContextMenuItem);
+					if (pItem != nullptr) {
+						this->m_pRenderer->SetBackgroundPicture(L"backgrounds\\" + pItem->wszName);
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			}
+			virtual void OnSelect(const size_t uiItemId, MouseKey_e eMouseKey, bool& bToggleAfterSelection)
+			{
+				//Perform selection
+
+				bToggleAfterSelection = false;
+
+				if (IMenuItemContextMenu::IsContextMenuVisible())
+					return;
+
+				if (eMouseKey == MKEY_RIGHT) {
+					this->m_uiContextMenuItem = uiItemId;
+					IMenuItemContextMenu::ShowContextMenu(this->GetCursorPos());
+				}
+			}
+			virtual void OnDraw(const Entity::Vector& vBodyStart)
+			{
+				//Draw settings information
+			}
+			virtual void OnDrawAdditions(const Entity::Vector& vBodyStart)
+			{
+				//Draw additional stuff
+
+				IMenuItemContextMenu::Draw(this->GetCursorPos());
+			}
+			virtual void OnClick(const Entity::Vector& vCursorPos, MouseKey_e eMouseKey)
+			{
+				//Handle click events
+
+				if (IMenuItemContextMenu::IsContextMenuVisible()) {
+					if (eMouseKey == MKEY_LEFT)
+						IMenuItemContextMenu::Click(vCursorPos);
+
+					return;
+				}
+			}
+			virtual void OnKeyPressed(int vKey)
+			{
+				//Handle key press
+			}
+
+			virtual bool CustomDrawing(void) const { return false; }
+			virtual bool IsValid(void) const { return this->m_pRenderer != nullptr; }
+			virtual Entity::Vector GetSubItemPreviewRes(void) const { return Entity::Vector(SettingMenuPreviewItemResW, SettingMenuPreviewItemResH); }
+			virtual DxRenderer::HD3DSPRITE GetSubItemPreviewImage(const size_t uiItemId) { SubItemCatBackgrounds* pSubItem = this->GetSubItem(uiItemId); if (pSubItem) return pSubItem->hPreview; return nullptr; }
+		};
+
 		bool m_bReady;
 		bool m_bVisible;
 		DxRenderer::HD3DSPRITE m_hMenuSprite;
@@ -1518,6 +1640,7 @@ namespace Menu {
 			ADD_MENU_ITEM(CMenuCatBrowser(L"Workshop", pToolMgr, pRenderer, pSound));
 			ADD_MENU_ITEM(CMenuCatScreenshots(L"Screenshots", pRenderer));
 			ADD_MENU_ITEM(CMenuCatSettings(L"Settings", pRenderer, pSound, pToolMgr, pToolBindings));
+			ADD_MENU_ITEM(CMenuCatBackgrounds(L"Backgrounds", pRenderer));
 
 			return this->m_bReady = true;
 		}

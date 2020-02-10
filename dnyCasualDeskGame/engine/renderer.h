@@ -677,7 +677,7 @@ namespace DxRenderer {
 				if (FAILED(D3DXGetImageInfoFromFile(wszPictureFile.c_str(), &d3dimgInfo))) //Get image info
 					return false;
 				
-				if (FAILED(this->m_pDevice->CreateOffscreenPlainSurface(d3dimgInfo.Width, d3dimgInfo.Height, d3dimgInfo.Format, D3DPOOL_DEFAULT, &this->m_pImageSurface, nullptr))) //Create surface for image
+				if (FAILED(this->m_pDevice->CreateOffscreenPlainSurface(this->GetWindowWidth(), this->GetWindowHeight(), D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &this->m_pImageSurface, nullptr))) //Create surface for image
 					return false;
 				
 				if (FAILED(D3DXLoadSurfaceFromFile(this->m_pImageSurface, nullptr, nullptr, wszPictureFile.c_str(), nullptr, D3DX_DEFAULT, 0, &d3dimgInfo))) { //Load image into surface
