@@ -41,6 +41,7 @@ namespace Game {
 	Workshop::CSteamDownload* pSteamDownloader = nullptr;
 	std::vector<std::vector<std::wstring>> vToolBindings;
 	Menu::CExitMenu* pExitMenu = nullptr;
+	DxRenderer::HD3DSPRITE hExitMenuCursor = GFX_INVALID_SPRITE_ID;
 
 	void AS_MessageCallback(const asSMessageInfo *msg, void *param);
 	std::wstring GetToolFromBinding(const std::wstring& wszKey);
@@ -296,7 +297,8 @@ namespace Game {
 
 			if (pToolManager) {
 				pToolManager->Draw(!pGameMenu->IsVisible());
-				pToolManager->DrawOnTop(!pGameMenu->IsVisible());
+
+				pToolManager->DrawOnTop((!pGameMenu->IsVisible()) && (!pExitMenu->IsVisible()));
 
 				const std::vector<Entity::CScriptedEntity*> vSelEntityList = pToolManager->GetSelectionEntities();
 				for (size_t i = 0; i < vSelEntityList.size(); i++) {
@@ -315,7 +317,7 @@ namespace Game {
 
 			if ((pExitMenu) && (pExitMenu->IsVisible())) {
 				pExitMenu->Draw();
-				pDxRenderer->DrawFilledBox(vCursorPos[0], vCursorPos[1], 4, 4, 0, 122, 204, 150);
+				pDxRenderer->DrawSprite(hExitMenuCursor, vCursorPos[0], vCursorPos[1], 0, 0.0f);
 			}
 
 			if ((pConsole) && (pConsole->IsVisible())) {
@@ -637,6 +639,11 @@ namespace Game {
 		//Instantiate exit menu
 		pExitMenu = new Menu::CExitMenu(pDxRenderer, &OnConfirmExitWindow);
 		if (!pExitMenu)
+			return false;
+
+		//Load exit menu cursor
+		hExitMenuCursor = pDxRenderer->LoadSprite(L"res\\menucursor.png", 1, 16, 16, 1, false);
+		if (hExitMenuCursor == GFX_INVALID_SPRITE_ID)
 			return false;
 
 		//Instantiate Steam Workshop downloader object

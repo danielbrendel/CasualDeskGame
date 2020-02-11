@@ -1613,7 +1613,7 @@ namespace Menu {
 				return false;
 
 			//Load menu cursor
-			this->m_hCursor = pRenderer->LoadSprite(L"res\\menucursor.png", 1, 32, 32, 1, false);
+			this->m_hCursor = pRenderer->LoadSprite(L"res\\menucursor.png", 1, 16, 16, 1, false);
 			if (this->m_hCursor == GFX_INVALID_SPRITE_ID) {
 				pRenderer->FreeSprite(this->m_hMenuSprite);
 				return false;
@@ -1701,7 +1701,6 @@ namespace Menu {
 				this->m_vMenuItems[this->m_uiSelectedItem]->OnDrawAdditions(Entity::Vector(this->m_vScreenPos[0] + SettingMenuBodyX, this->m_vScreenPos[1] + SettingMenuBodyY));
 			
 				//Draw scroll position indicator
-
 				if (this->m_vMenuItems[this->m_uiSelectedItem]->GetSubItemCount() > SettingMenuPreviewItemDisplayCount) {
 					//Calculate percent of current item start to item amount
 					double dblPercentItems = ((double)this->m_vMenuItems[this->m_uiSelectedItem]->GetScrollIndex() * 100) / ((double)this->m_vMenuItems[this->m_uiSelectedItem]->GetSubItemCount() - SettingMenuPreviewItemDisplayCount);
