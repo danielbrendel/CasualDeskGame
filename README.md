@@ -4,8 +4,8 @@
 
 **Version**: 1.0\
 **Contact**: dbrendel1988 at gmail com\
-**GitHub**: [GitHub](https://github.com/danielbrendel)\
-**Steam**: https://store.steampowered.com/app/1001860/Casual_Desktop_Game/\
+**GitHub**: [Profile](https://github.com/danielbrendel)\
+**Steam**: [Shop](https://store.steampowered.com/app/1001860/Casual_Desktop_Game)\
 **License**: see LICENSE.txt
 
 ## Description
