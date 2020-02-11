@@ -41,8 +41,9 @@ The following basic steps are required to create a tool:
   give it the same file name as the directory is named.
 * Create a preview image (size: 195x90) and a cursor image and place
   them somewhere in the directory
-* Edit the tool script file according the provided instructions inside
+* Edit the tool script file according to the provided instructions inside
   the script file
+* Refer to the file scripting_doc.md to read the scripting documentation
 * When debugging, use the ingame console to view output
 
 ## Changelog:
@@ -101,12 +102,12 @@ The following basic steps are required to create a tool:
 * Version 0.9:
 	* Small fixes
 * Version 1.0:
-	* Added README.md
 	* Changed license to MIT
 	* Adjustable exit confirmation
-	* Upgrade project to MSVC++ 2019
 	* Entities can now be pointed to a target destination
 	* tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user
 	* headcrab does now attack opponents
 	* New tool 'pistol'
 	* Background image feature implemented
+	* Added scripting documentation
+	* Upgraded to MSVC++ 2019
