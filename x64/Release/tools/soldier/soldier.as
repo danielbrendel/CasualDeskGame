@@ -635,9 +635,9 @@ class CBaseSoldierEntity : IScriptedEntity
 		
 		BoundingBox bbox;
 		bbox.Alloc();
-		bbox.AddBBoxItem(Vector(140, 95), Vector(43, 32));
+		bbox.AddBBoxItem(Vector(0, 0), Vector(43, 32));
 		this.m_oModel.Alloc();
-		this.m_oModel.SetCenter(Vector(162, 112));
+		this.m_oModel.SetCenter(Vector(21, 16));
 		this.m_oModel.Initialize2(bbox, this.m_arrMovement[0]);
 	}
 	

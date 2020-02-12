@@ -367,6 +367,7 @@ namespace Entity {
 				return false;
 			
 			for (size_t i = 0; i < this->m_pvBBoxItems->size(); i++) { //Iterate through items
+				bbox_item_s item = (*this->m_pvBBoxItems)[i];
 				//Check if bbox item is inside current iterated item
 				if (((vRefAbsPos[0] + rBBoxItem.pos[0] >= vMyAbsPos[0] + (*this->m_pvBBoxItems)[i].pos[0]) && (vRefAbsPos[0] + rBBoxItem.pos[0] <= vMyAbsPos[0] + (*this->m_pvBBoxItems)[i].pos[0] + (*this->m_pvBBoxItems)[i].size[0])) && ((vRefAbsPos[1] + rBBoxItem.pos[1] >= vMyAbsPos[1] + (*this->m_pvBBoxItems)[i].pos[1]) && (vRefAbsPos[1] + rBBoxItem.pos[1] <= vMyAbsPos[1] + (*this->m_pvBBoxItems)[i].pos[1] + (*this->m_pvBBoxItems)[i].size[1]))) {
 					return true;
