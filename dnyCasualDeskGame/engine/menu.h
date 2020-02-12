@@ -814,7 +814,7 @@ namespace Menu {
 				IMenuItemContextMenu::Draw(this->GetCursorPos());
 
 				if (this->m_pDropDownMenu) {
-					this->m_pDropDownMenu->Draw(Entity::Vector(vBodyStart[0] - 180, vBodyStart[1] + 150));
+					this->m_pDropDownMenu->Draw(Entity::Vector(vBodyStart[0] - 180, vBodyStart[1] + 200));
 				}
 
 				if (!this->GetSubItemCount()) {
