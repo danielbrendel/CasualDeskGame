@@ -1,0 +1,11 @@
+2D Art Credits:
+===============
+Aircraft sprite: chabull (https://opengameart.org/content/aircrafts-0)
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+Rocket: Napoleon (https://opengameart.org/content/missile, https://opengameart.org/content/basic-nuclear-signs)
+Rocket trail and crosshair: para (https://opengameart.org/content/animated-particle-effects-2)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)
+Plane: Stephen M. Cameron (https://opengameart.org/content/action-shooter-soundset-wwvi)

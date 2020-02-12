@@ -291,7 +291,7 @@
 */
 
 string g_szToolPath = "";
-bool g_bTeamToggle = false;
+bool g_bTeamToggle = true;
 Vector g_vecMousePos;
 bool g_bSelectionStatus = false;
 GameKeys g_GameKeys;

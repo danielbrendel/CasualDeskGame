@@ -857,7 +857,7 @@ class CLaserMech : IScriptedEntity
 		this.m_bInCombat = false;
 		this.m_fSpeed = 2.0;
 		this.m_iHealth = 400;
-		this.m_dvDamage = 100;
+		this.m_dvDamage = 35;
 		this.m_iCombatActivationRange = 350;
 		this.m_iAttackRange = 310;
 		@this.m_pTarget = null;

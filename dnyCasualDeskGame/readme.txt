@@ -114,6 +114,8 @@ Changelog:
 	+ tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user
 	+ headcrab does now attack opponents
 	+ New tool 'pistol'
+	+ New tool 'rlauncher'
 	+ Background image feature implemented
 	+ Added scripting documentation
 	+ Upgraded to MSVC++ 2019
+	+ Bugfixes
