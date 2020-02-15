@@ -534,7 +534,7 @@ namespace Menu {
 				if (this->m_hSprNewsImage != GFX_INVALID_SPRITE_ID) {
 					this->m_pRenderer->DrawSprite(this->m_hSprNewsImage, vBodyStart[0] - 20, vBodyStart[1] - 20, 0, 0.0f, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
 				} else {
-					this->m_pRenderer->DrawString(DefaultFontHandle, L"Welcome to Casual Desktop Game v" DNY_CDG_PRODUCT_VERSION, vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
+					this->m_pRenderer->DrawString(DefaultFontHandle, L"Welcome to " DNY_CDG_PRODUCT_TEXT " v" DNY_CDG_PRODUCT_VERSION, vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
 				}
 			}
 			virtual void OnClick(const Entity::Vector& vCursorPos, MouseKey_e eMouseKey) {}
