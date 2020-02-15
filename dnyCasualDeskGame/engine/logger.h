@@ -53,7 +53,7 @@ namespace Logger {
 		{
 			//Open file for writing 
 
-			this->m_hFile.open(wszFile, std::ofstream::out | std::ofstream::app);
+			this->m_hFile.open(wszFile, std::ofstream::out);
 			if (this->m_hFile.is_open()) {
 				this->WriteLine(DNY_CDG_PRODUCT_NAME L" v" DNY_CDG_PRODUCT_VERSION L" developed by " DNY_CDG_PRODUCT_AUTHOR L" (" DNY_CDG_PRODUCT_CONTACT L")\n");
 				this->WriteLine(L"Logfile stream opened at " + this->GetCurrentTimeString() + L"\n");
