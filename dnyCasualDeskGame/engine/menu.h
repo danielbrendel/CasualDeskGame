@@ -927,6 +927,12 @@ namespace Menu {
 				IMenuItemContextMenu::SetColors(Entity::Color(0, 162, 232, 150), Entity::Color(231, 231, 232, 150), Entity::Color(0, 0, 0, 150));
 				IMenuItemContextMenu::AddContextMenuItem(L"Download", CMenuCatBrowser::ContextMenuItemDownload);
 			}
+			~CMenuCatBrowser()
+			{
+				if (this->m_pBrowser) {
+					delete this->m_pBrowser;
+				}
+			}
 
 			virtual void OnShow(void)
 			{
@@ -942,8 +948,10 @@ namespace Menu {
 					return;
 				}
 
-				if (!Browser::SettingHostURL.length())
+				if (!Browser::SettingHostURL.length()) {
+					Entity::APIFuncs::Print2("Host URL is empty, nothing to do", Console::ConColor(150, 150, 0));
 					return;
+				}
 
 				if (!this->m_pBrowser->FetchToolList(L"http://" + Browser::SettingHostURL + L"/cdg/list.txt")) {
 					Entity::APIFuncs::Print2("Failed to fetch tool link list from \"" + Utils::ConvertToAnsiString(Browser::SettingHostURL) + "\"", Console::ConColor(150, 0, 0));
