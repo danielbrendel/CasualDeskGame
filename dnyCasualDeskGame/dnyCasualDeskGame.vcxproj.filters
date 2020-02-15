@@ -72,6 +72,9 @@
     <ClInclude Include="engine\workshop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="as\add_on\scriptstdstring\scriptstdstring.cpp">

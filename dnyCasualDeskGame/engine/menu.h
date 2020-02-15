@@ -503,8 +503,8 @@ namespace Menu {
 			DxRenderer::CDxRenderer* m_pRenderer;
 			DxRenderer::HD3DSPRITE m_hSprNewsImage;
 		public:
-			CMenuCatNews() : IMenuItemContainer<SubItemCatNews>(), m_pRenderer(nullptr) {}
-			CMenuCatNews(const std::wstring& wszText, DxRenderer::CDxRenderer* pRenderer) : IMenuItemContainer<SubItemCatNews>(wszText), m_pRenderer(pRenderer) {}
+			CMenuCatNews() : IMenuItemContainer<SubItemCatNews>(), m_pRenderer(nullptr), m_hSprNewsImage(GFX_INVALID_SPRITE_ID) {}
+			CMenuCatNews(const std::wstring& wszText, DxRenderer::CDxRenderer* pRenderer) : IMenuItemContainer<SubItemCatNews>(wszText), m_pRenderer(pRenderer), m_hSprNewsImage(GFX_INVALID_SPRITE_ID){}
 
 			virtual void OnShow(void)
 			{
@@ -512,11 +512,13 @@ namespace Menu {
 
 				Browser::CBrowser* pBrowser = new Browser::CBrowser();
 				if (pBrowser) {
-					if (!pBrowser->DownloadResource(L"http://" + Browser::SettingHostURL + L"/cdg/news.png", L"cache\\news.png")) {
-						Entity::APIFuncs::Print2("Failed to obtain news content: " + std::to_string(GetLastError()), Console::ConColor(150, 150, 0));
-					}
+					if (Browser::SettingHostURL.length()) {
+						if (!pBrowser->DownloadResource(L"http://" + Browser::SettingHostURL + L"/cdg/news.png", L"cache\\news.png")) {
+							Entity::APIFuncs::Print2("Failed to obtain news content: " + std::to_string(GetLastError()), Console::ConColor(150, 150, 0));
+						}
 
-					this->m_hSprNewsImage = this->m_pRenderer->LoadSprite(L"cache\\news.png", 1, SettingMenuBodyW, SettingMenuBodyH, 1, true);
+						this->m_hSprNewsImage = this->m_pRenderer->LoadSprite(L"cache\\news.png", 1, SettingMenuBodyW, SettingMenuBodyH, 1, true);
+					}
 
 					delete pBrowser;
 				}
@@ -529,7 +531,11 @@ namespace Menu {
 			{
 				//Draw news image
 
-				this->m_pRenderer->DrawSprite(this->m_hSprNewsImage, vBodyStart[0] - 20, vBodyStart[1] - 20, 0, 0.0f, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
+				if (this->m_hSprNewsImage != GFX_INVALID_SPRITE_ID) {
+					this->m_pRenderer->DrawSprite(this->m_hSprNewsImage, vBodyStart[0] - 20, vBodyStart[1] - 20, 0, 0.0f, -1, -1, 0.0f, 0.0f, false, 0, 0, 0, 0);
+				} else {
+					this->m_pRenderer->DrawString(DefaultFontHandle, L"Network service unavailable. Please try again later.", vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
+				}
 			}
 			virtual void OnClick(const Entity::Vector& vCursorPos, MouseKey_e eMouseKey) {}
 
@@ -873,7 +879,7 @@ namespace Menu {
 
 			void InitDownload(const size_t uiItemId)
 			{
-				if ((this->m_bFetchingList) || (this->m_bDownloadingItem))
+				if ((this->m_bFetchingList) || (this->m_bDownloadingItem) || (!Browser::SettingHostURL.length()))
 					return;
 
 				Entity::APIFuncs::Print("> Starting download of selected tool...");
@@ -935,6 +941,9 @@ namespace Menu {
 					Entity::APIFuncs::Print2("Failed to instantiate Browser object", Console::ConColor(150, 0, 0));
 					return;
 				}
+
+				if (!Browser::SettingHostURL.length())
+					return;
 
 				if (!this->m_pBrowser->FetchToolList(L"http://" + Browser::SettingHostURL + L"/cdg/list.txt")) {
 					Entity::APIFuncs::Print2("Failed to fetch tool link list from \"" + Utils::ConvertToAnsiString(Browser::SettingHostURL) + "\"", Console::ConColor(150, 0, 0));
@@ -1214,6 +1223,10 @@ namespace Menu {
 				}
 				case CMenuCatScreenshots::ContextMenuItemUpload: {
 					//if (this->MayUpload()) {
+						if (!Browser::SettingHostURL.length()) {
+							this->PushError(L"Image upload failed!");
+							return;
+						}
 						std::wstring wszFileName = Utils::ExtractFileName(this->m_wszCurrentScreenshot);
 						Browser::CImageUploader oImageUploader(Utils::ConvertToAnsiString(Browser::SettingHostURL), "/uploadScreenshot", Utils::ConvertToAnsiString(wszFileName), Utils::ConvertToAnsiString(this->m_wszCurrentScreenshot), SteamFriends()->GetPersonaName(), "imgfile");
 						bool bResult = oImageUploader.Upload();

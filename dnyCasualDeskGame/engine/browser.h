@@ -18,7 +18,7 @@
 
 /* Browser environment */
 namespace Browser {
-	std::wstring SettingHostURL;
+	std::wstring SettingHostURL = L"";
 
 	bool InputHostInfo(const std::wstring& wszInputFile)
 	{

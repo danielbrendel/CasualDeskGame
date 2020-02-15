@@ -20,6 +20,7 @@
 #include "menu.h"
 #include "browser.h"
 #include "workshop.h"
+#include "logger.h"
 #include <steam_api.h>
 
 /* Game management component */
@@ -42,6 +43,7 @@ namespace Game {
 	std::vector<std::vector<std::wstring>> vToolBindings;
 	Menu::CExitMenu* pExitMenu = nullptr;
 	DxRenderer::HD3DSPRITE hExitMenuCursor = GFX_INVALID_SPRITE_ID;
+	Logger::CLogger* pLogger = nullptr;
 
 	void AS_MessageCallback(const asSMessageInfo *msg, void *param);
 	std::wstring GetToolFromBinding(const std::wstring& wszKey);
@@ -140,7 +142,7 @@ namespace Game {
 			//Handle key input
 
 			if (pToolManager) pToolManager->OnKeyEvent(vKey, bDown);
-
+			
 			if (vKey == sGameKeys.vkMenu) {
 				if (bDown) {
 					pGameMenu->Toggle();
@@ -536,14 +538,24 @@ namespace Game {
 		if (bGameReady)
 			return true;
 
+		//Instantiate logger
+		pLogger = new Logger::CLogger(L"res\\logfile.log");
+		if (!pLogger)
+			return false;
+
+		pLogger->Log(Logger::LOG_INFO, L"Initializing game...");
+
 		//Link with Steam
 
 		if (SteamAPI_RestartAppIfNecessary(DNY_CDG_STEAM_APPID)) {
+			pLogger->Log(Logger::LOG_INFO, L"Restarting App");
 			return true;
 		}
 
-		if (!SteamAPI_Init())
+		if (!SteamAPI_Init()) {
+			pLogger->Log(Logger::LOG_ERROR, L"SteamAPI_Init() returned false");
 			return false;
+		}
 		
 
 		Sleep(2000);
@@ -551,46 +563,64 @@ namespace Game {
 		//Get base path
 		
 		wszBaseDirectory = GetBasePath();
-		if (!wszBaseDirectory.length())
+		if (!wszBaseDirectory.length()) {
+			pLogger->Log(Logger::LOG_ERROR, L"Could not retrieve base path: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		Entity::SetBasePath(wszBaseDirectory);
 
 		//Get desktop resolution
-		if (!GetWindowRect(GetDesktopWindow(), &sWindowRect))
+		if (!GetWindowRect(GetDesktopWindow(), &sWindowRect)) {
+			pLogger->Log(Logger::LOG_ERROR, L"GetWindowRect() failed: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		if (!wszArgs.length()) {
 			//Create screenshot from Desktop
-			if (!StoreBackgroundScreenshot(DesktopScreenshotFileName))
+			if (!StoreBackgroundScreenshot(DesktopScreenshotFileName)) {
+				pLogger->Log(Logger::LOG_ERROR, L"StoreBackgroundScreenshot() failed: " + std::to_wstring(GetLastError()));
 				return false;
+			}
 		} else {
 			//Copy arg file to destination
-			if (!CopyFile(wszArgs.c_str(), (wszBaseDirectory + DesktopScreenshotFileName).c_str(), FALSE))
+			if (!CopyFile(wszArgs.c_str(), (wszBaseDirectory + DesktopScreenshotFileName).c_str(), FALSE)) {
+				pLogger->Log(Logger::LOG_ERROR, L"CopyFile() failed: " + std::to_wstring(GetLastError()));
 				return false;
+			}
 		}
 
 		// Initialize media components
 
 		pDxWindow = new DxWindow::CDxWindow(DNY_CDG_PRODUCT_NAME, sWindowRect.right, sWindowRect.bottom, &oDxWindowEvents);
-		if (!pDxWindow)
+		if (!pDxWindow) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate DxWindow::CDxWindow: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		pDxRenderer = new DxRenderer::CDxRenderer(pDxWindow->GetHandle(), false, sWindowRect.right, sWindowRect.bottom, 255, 255, 255, 0);
-		if (!pDxRenderer)
+		if (!pDxRenderer) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate DxRenderer::CDxRenderer: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		pDxSound = new DxSound::CDxSound(pDxWindow->GetHandle());
-		if (!pDxSound)
+		if (!pDxSound) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate DxSound::CDxSound: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Load global volume
-		pDxSound->LoadGlobalVolume(wszBaseDirectory + L"res\\volume.txt");
+		if (!pDxSound->LoadGlobalVolume(wszBaseDirectory + L"res\\volume.txt")) {
+			pLogger->Log(Logger::LOG_WARNING, L"LoadGlobalVolume() failed: " + std::to_wstring(GetLastError()));
+		}
 
 		//Instantiate console
 		pConsole = new Console::CConsole(pDxRenderer, sWindowRect.right, sWindowRect.bottom / 2, CON_DEFAULT_MAXHISTORY, Console::ConColor(100, 100, 100));
-		if (!pConsole)
+		if (!pConsole) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Console::CConsole: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		#define CON_INFO_WRAPPER_LINE L"=============================================================="
 		pConsole->AddLine(CON_INFO_WRAPPER_LINE);
@@ -601,34 +631,48 @@ namespace Game {
 
 		//Initialize scripting
 		pScriptingInt = new Scripting::CScriptInt(Utils::ConvertToAnsiString(wszBaseDirectory + L"tools\\"), &AS_MessageCallback);
-		if (!pScriptingInt)
+		if (!pScriptingInt) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Scripting::CScriptInt: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Initialize entity environment
 		pToolManager = Entity::Initialize(pDxRenderer, pDxSound, pScriptingInt, pConsole);
-		if (!pToolManager)
+		if (!pToolManager) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to initialize entity environment: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Load tool bindings
-		if (!LoadToolBindings(wszBaseDirectory + L"res\\toolbindings.txt"))
+		if (!LoadToolBindings(wszBaseDirectory + L"res\\toolbindings.txt")) {
+			pLogger->Log(Logger::LOG_ERROR, L"LoadToolBindings() failed: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Instantiate menu
 		pGameMenu = new Menu::CMenu(pDxRenderer, pDxSound, pToolManager, Entity::Vector(pDxRenderer->GetWindowWidth(), pDxRenderer->GetWindowHeight()), &vToolBindings);
-		if (!pGameMenu)
+		if (!pGameMenu) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Menu:::CMenu: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 		
 		//Load key config
-		if (!LoadKeys(L"res\\keys.txt"))
+		if (!LoadKeys(L"res\\keys.txt")) {
+			pLogger->Log(Logger::LOG_ERROR, L"LoadKeys() failed: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Query host info
-		if (!Browser::InputHostInfo(L"res\\hostinfo.txt"))
+		if (!Browser::InputHostInfo(L"res\\hostinfo.txt")) {
 			pConsole->AddLine(L"Failed to query host info", Console::ConColor(150, 150, 0));
+			pLogger->Log(Logger::LOG_WARNING, L"Browser::InputHostInfo() failed: " + std::to_wstring(GetLastError()));
+		}
 		
 		//Query menu data
-		if (!Menu::SetupMenu(L"res\\menudef.txt"))
+		if (!Menu::SetupMenu(L"res\\menudef.txt")) {
 			pConsole->AddLine(L"Failed to query menu data from disk, using default values", Console::ConColor(150, 150, 0));
+			pLogger->Log(Logger::LOG_WARNING, L"Menu::SetupMenu() failed: " + std::to_wstring(GetLastError()));
+		}
 
 		//Set exit confirmation indicator
 		Menu::bShallConfirmOnExit = ShallConfirmOnExit(L"res\\exitconfirm.txt");
@@ -638,32 +682,44 @@ namespace Game {
 
 		//Instantiate exit menu
 		pExitMenu = new Menu::CExitMenu(pDxRenderer, &OnConfirmExitWindow);
-		if (!pExitMenu)
+		if (!pExitMenu) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Menu:::CExitMenu: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Load exit menu cursor
 		hExitMenuCursor = pDxRenderer->LoadSprite(L"res\\menucursor.png", 1, 16, 16, 1, false);
-		if (hExitMenuCursor == GFX_INVALID_SPRITE_ID)
+		if (hExitMenuCursor == GFX_INVALID_SPRITE_ID) {
+			pLogger->Log(Logger::LOG_ERROR, L"DxRenderer::CDxRenderer::LoadSprite() returned GFX_INVALID_SPRITE_ID for menu cursor: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Instantiate Steam Workshop downloader object
 		pSteamDownloader = new Workshop::CSteamDownload(&OnHandleWorkshopItem);
-		if (!pSteamDownloader)
+		if (!pSteamDownloader) {
+			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Workshop::CSteamDownload: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Get Workshop items
 		pSteamDownloader->CopyWorkshopItems();
 
 		//Load all tools
-		if (!LoadAllTools())
+		if (!LoadAllTools()) {
+			pLogger->Log(Logger::LOG_ERROR, L"LoadAllTools() failed: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 
 		//Set background image
-		if (!pDxRenderer->SetBackgroundPicture(wszBaseDirectory + DesktopScreenshotFileName))
+		if (!pDxRenderer->SetBackgroundPicture(wszBaseDirectory + DesktopScreenshotFileName)) {
+			pLogger->Log(Logger::LOG_ERROR, L"DxRenderer::CDxRenderer::SetBackgroundPicture() failed: " + std::to_wstring(GetLastError()));
 			return false;
+		}
 		
 		pGameMenu->SetCategory(0);
 		pGameMenu->Toggle();
+
+		pLogger->Log(Logger::LOG_INFO, L"All set up and running. Have fun playing!");
 
 		//Return set indicator
 		return bGameReady = true;
@@ -691,6 +747,9 @@ namespace Game {
 		if (!bGameReady)
 			return;
 
+		//Log information
+		pLogger->Log(Logger::LOG_INFO, L"Shutting down");
+
 		//Store global volume
 		pDxSound->StoreGlobalVolume(wszBaseDirectory + L"res\\volume.txt");
 
@@ -711,6 +770,7 @@ namespace Game {
 		_delete(pGameMenu);
 		_delete(pSteamDownloader);
 		_delete(pExitMenu);
+		_delete(pLogger);
 
 		//Delete screenshot
 		if (Utils::FileExists(wszBaseDirectory + DesktopScreenshotFileName))

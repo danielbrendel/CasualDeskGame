@@ -112,5 +112,6 @@ The following basic steps are required to create a tool:
 	* Added new tool 'boltwand'
 	* Background image feature implemented
 	* Added scripting documentation
+	* Added logging
 	* Upgraded to MSVC++ 2019
 	* Bugfixes
