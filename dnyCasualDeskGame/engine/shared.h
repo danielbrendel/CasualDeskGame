@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
+	Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 
 	(C) 2018 - 2020 by Daniel Brendel
 
@@ -12,7 +12,7 @@
 	License: see LICENSE.txt
 */
 
-#define DNY_CDG_PRODUCT_NAME L"dnycasualDeskGame"
+#define DNY_CDG_PRODUCT_NAME L"dnyCasualDeskGame"
 #define DNY_CDG_PRODUCT_TEXT L"Casual Desktop Game"
 #define DNY_CDG_PRODUCT_VERSION L"1.0"
 #define DNY_CDG_PRODUCT_AUTHOR L"Daniel Brendel"

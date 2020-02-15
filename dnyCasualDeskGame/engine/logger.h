@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
+	Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 
 	(C) 2018 - 2020 by Daniel Brendel
 
@@ -27,13 +27,14 @@ namespace Logger {
 	private:
 		std::wofstream m_hFile;
 
-		std::wstring GetCurrentTimeString(void)
+		std::wstring GetCurrentTimeString(bool bForFileName = false)
 		{
 			//Get current time and date as string
 
 			std::time_t t = std::time(nullptr);
 			wchar_t wcsDate[MAX_PATH];
-			if (std::wcsftime(wcsDate, sizeof(wcsDate), L"%d-%m-%Y %H:%M:%S", std::localtime(&t))) {
+			std::wstring wszFormat = (bForFileName) ? L"%d-%m-%Y_%H-%M-%S" : L"%d-%m-%Y %H:%M:%S";
+			if (std::wcsftime(wcsDate, sizeof(wcsDate), wszFormat.c_str(), std::localtime(&t))) {
 				return wcsDate;
 			}
 
@@ -49,11 +50,11 @@ namespace Logger {
 			this->m_hFile.write(wszFullLine.data(), wszFullLine.length());
 		}
 	public:
-		CLogger(const std::wstring& wszFile)
+		CLogger(const std::wstring& wszPath)
 		{
 			//Open file for writing 
 
-			this->m_hFile.open(wszFile, std::ofstream::out);
+			this->m_hFile.open(wszPath + L"\\logfile_" + this->GetCurrentTimeString(true) + L".log", std::ofstream::out | std::ofstream::app);
 			if (this->m_hFile.is_open()) {
 				this->WriteLine(DNY_CDG_PRODUCT_NAME L" v" DNY_CDG_PRODUCT_VERSION L" developed by " DNY_CDG_PRODUCT_AUTHOR L" (" DNY_CDG_PRODUCT_CONTACT L")\n");
 				this->WriteLine(L"Logfile stream opened at " + this->GetCurrentTimeString() + L"\n");

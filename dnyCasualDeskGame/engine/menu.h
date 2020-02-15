@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
+	Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 
 	(C) 2018 - 2020 by Daniel Brendel
 

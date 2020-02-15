@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-	Casual Desktop Game (dnycasualDeskGame) developed by Daniel Brendel
+	Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 
 	(C) 2018 - 2020 by Daniel Brendel
 
@@ -539,7 +539,7 @@ namespace Game {
 			return true;
 
 		//Instantiate logger
-		pLogger = new Logger::CLogger(L"res\\logfile.log");
+		pLogger = new Logger::CLogger(L"logs");
 		if (!pLogger)
 			return false;
 
@@ -557,6 +557,7 @@ namespace Game {
 			return false;
 		}
 		
+		pLogger->Log(Logger::LOG_INFO, L"Connected with Steam");
 
 		Sleep(2000);
 
@@ -569,6 +570,8 @@ namespace Game {
 		}
 
 		Entity::SetBasePath(wszBaseDirectory);
+
+		pLogger->Log(Logger::LOG_INFO, L"Base path: " + wszBaseDirectory);
 
 		//Get desktop resolution
 		if (!GetWindowRect(GetDesktopWindow(), &sWindowRect)) {
@@ -590,6 +593,8 @@ namespace Game {
 			}
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Stored background screenshot");
+
 		// Initialize media components
 
 		pDxWindow = new DxWindow::CDxWindow(DNY_CDG_PRODUCT_NAME, sWindowRect.right, sWindowRect.bottom, &oDxWindowEvents);
@@ -598,17 +603,23 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized window component");
+
 		pDxRenderer = new DxRenderer::CDxRenderer(pDxWindow->GetHandle(), false, sWindowRect.right, sWindowRect.bottom, 255, 255, 255, 0);
 		if (!pDxRenderer) {
 			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate DxRenderer::CDxRenderer: " + std::to_wstring(GetLastError()));
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized renderer");
+
 		pDxSound = new DxSound::CDxSound(pDxWindow->GetHandle());
 		if (!pDxSound) {
 			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate DxSound::CDxSound: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Initialized sound");
 
 		//Load global volume
 		if (!pDxSound->LoadGlobalVolume(wszBaseDirectory + L"res\\volume.txt")) {
@@ -621,6 +632,8 @@ namespace Game {
 			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Console::CConsole: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Initialized console");
 
 		#define CON_INFO_WRAPPER_LINE L"=============================================================="
 		pConsole->AddLine(CON_INFO_WRAPPER_LINE);
@@ -636,6 +649,8 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized scripting interface");
+
 		//Initialize entity environment
 		pToolManager = Entity::Initialize(pDxRenderer, pDxSound, pScriptingInt, pConsole);
 		if (!pToolManager) {
@@ -643,11 +658,15 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized entity environment");
+
 		//Load tool bindings
 		if (!LoadToolBindings(wszBaseDirectory + L"res\\toolbindings.txt")) {
 			pLogger->Log(Logger::LOG_ERROR, L"LoadToolBindings() failed: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Loaded all tool bindings");
 
 		//Instantiate menu
 		pGameMenu = new Menu::CMenu(pDxRenderer, pDxSound, pToolManager, Entity::Vector(pDxRenderer->GetWindowWidth(), pDxRenderer->GetWindowHeight()), &vToolBindings);
@@ -655,6 +674,8 @@ namespace Game {
 			pLogger->Log(Logger::LOG_ERROR, L"Failed to instantiate Menu:::CMenu: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Initialized game menu");
 		
 		//Load key config
 		if (!LoadKeys(L"res\\keys.txt")) {
@@ -662,11 +683,15 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Loaded keys");
+
 		//Query host info
 		if (!Browser::InputHostInfo(L"res\\hostinfo.txt")) {
 			pConsole->AddLine(L"Failed to query host info", Console::ConColor(150, 150, 0));
 			pLogger->Log(Logger::LOG_WARNING, L"Browser::InputHostInfo() failed: " + std::to_wstring(GetLastError()));
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Using host: " + Browser::SettingHostURL);
 		
 		//Query menu data
 		if (!Menu::SetupMenu(L"res\\menudef.txt")) {
@@ -687,12 +712,16 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized exit confirmation menu");
+
 		//Load exit menu cursor
 		hExitMenuCursor = pDxRenderer->LoadSprite(L"res\\menucursor.png", 1, 16, 16, 1, false);
 		if (hExitMenuCursor == GFX_INVALID_SPRITE_ID) {
 			pLogger->Log(Logger::LOG_ERROR, L"DxRenderer::CDxRenderer::LoadSprite() returned GFX_INVALID_SPRITE_ID for menu cursor: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Loaded menu cursor");
 
 		//Instantiate Steam Workshop downloader object
 		pSteamDownloader = new Workshop::CSteamDownload(&OnHandleWorkshopItem);
@@ -701,8 +730,14 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Initialized Steam Workshop interface");
+
 		//Get Workshop items
-		pSteamDownloader->CopyWorkshopItems();
+		if (!pSteamDownloader->CopyWorkshopItems()) {
+			pLogger->Log(Logger::LOG_WARNING, L"Workshop::CSteamDownload::CopyWorkshopItems() failed: " + std::to_wstring(GetLastError()));
+		} else {
+			pLogger->Log(Logger::LOG_INFO, L"Retrieved Workshop items");
+		}
 
 		//Load all tools
 		if (!LoadAllTools()) {
@@ -710,11 +745,15 @@ namespace Game {
 			return false;
 		}
 
+		pLogger->Log(Logger::LOG_INFO, L"Loaded all tools");
+
 		//Set background image
 		if (!pDxRenderer->SetBackgroundPicture(wszBaseDirectory + DesktopScreenshotFileName)) {
 			pLogger->Log(Logger::LOG_ERROR, L"DxRenderer::CDxRenderer::SetBackgroundPicture() failed: " + std::to_wstring(GetLastError()));
 			return false;
 		}
+
+		pLogger->Log(Logger::LOG_INFO, L"Successfully set background image");
 		
 		pGameMenu->SetCategory(0);
 		pGameMenu->Toggle();
