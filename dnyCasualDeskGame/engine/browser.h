@@ -241,7 +241,7 @@ namespace Browser {
 		std::string m_szResource;
 		std::string m_szImageName;
 		std::string m_szImageFile;
-		std::string m_szSteamName;
+		std::string m_szSteamId;
 		std::string m_szFormDataName;
 
 		byte* LoadImageFile(size_t& uiImageSizeOut)
@@ -290,7 +290,7 @@ namespace Browser {
 
 			std::string szResult = "--" CIU_BOUNDARY "\r\n"
 				"Content-Type: application/octet-stream\r\n"
-				"Content-Disposition: form-data; name=\"" + this->m_szFormDataName + "\"; steamname=\"" + this->m_szSteamName + "\" filename=\"" + this->m_szImageName + "\"\r\n\r\n";
+				"Content-Disposition: form-data; name=\"" + this->m_szFormDataName + "\"; filename=\"" + this->m_szImageName + "\"\r\n\r\n";
 
 			return szResult;
 		}
@@ -331,7 +331,7 @@ namespace Browser {
 			}
 
 			//Init request
-			HINTERNET hRequest = HttpOpenRequestA(hConnection, "POST", this->m_szResource.c_str(), "HTTP/1.1", nullptr, nullptr, 0, 0);
+			HINTERNET hRequest = HttpOpenRequestA(hConnection, "POST", std::string(this->m_szResource + "/?steamid=" + this->m_szSteamId).c_str(), "HTTP/1.1", nullptr, nullptr, 0, 0);
 			if (!hRequest) {
 				InternetCloseHandle(hConnection);
 				InternetCloseHandle(hInet);
@@ -359,7 +359,7 @@ namespace Browser {
 		}
 	public:
 		CImageUploader() {}
-		CImageUploader(const std::string& szHost, const std::string& szRes, const std::string& szImgName, const std::string& szImgFile, const std::string& szSteamName, const std::string& szFrmName) : m_szHost(szHost), m_szResource(szRes), m_szImageFile(szImgFile), m_szImageName(szImgName), m_szSteamName(szSteamName), m_szFormDataName(szFrmName) {}
+		CImageUploader(const std::string& szHost, const std::string& szRes, const std::string& szImgName, const std::string& szImgFile, const std::string& szSteamId, const std::string& szFrmName) : m_szHost(szHost), m_szResource(szRes), m_szImageFile(szImgFile), m_szImageName(szImgName), m_szSteamId(szSteamId), m_szFormDataName(szFrmName) {}
 		~CImageUploader() {}
 
 		//Actions
@@ -395,7 +395,7 @@ namespace Browser {
 
 			//Attempt to send request
 			bool bResult = this->SendRequest(pEntireRequest, szHeader.length() + szFooter.length() + uiImageSize);
-
+			
 			//Free memory
 			delete[] pData;
 			delete[] pEntireRequest;
@@ -408,7 +408,7 @@ namespace Browser {
 		void SetResource(const std::string& szRes) { this->m_szResource = szRes; }
 		void SetImageFile(const std::string& szImage) { this->m_szImageFile = szImage; }
 		void SetImageName(const std::string& szName) { this->m_szImageName = szName; }
-		void SetSteamName(const std::string& szName) { this->m_szSteamName = szName; }
+		void SetSteamId(const std::string& szName) { this->m_szSteamId = szName; }
 		void SetFormDataName(const std::string& szName) { this->m_szFormDataName = szName; }
 
 		//Getters
@@ -416,7 +416,7 @@ namespace Browser {
 		const std::string& GetResource(void) const { return this->m_szResource; }
 		const std::string& GetImageFile(void) const { return this->m_szImageFile; }
 		const std::string& GetImageName(void) const { return this->m_szImageName; }
-		const std::string& GetSteamName(void) const { return this->m_szSteamName; }
+		const std::string& GetSteamId(void) const { return this->m_szSteamId; }
 		const std::string& GetDataName(void) const { return this->m_szFormDataName; }
 	};
 }

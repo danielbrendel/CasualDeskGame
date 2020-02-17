@@ -44,6 +44,8 @@ namespace Game {
 	Menu::CExitMenu* pExitMenu = nullptr;
 	DxRenderer::HD3DSPRITE hExitMenuCursor = GFX_INVALID_SPRITE_ID;
 	Logger::CLogger* pLogger = nullptr;
+	Menu::WorkshopService_e eServiceType;
+	bool bEnableScreenshotUpload;
 
 	void AS_MessageCallback(const asSMessageInfo *msg, void *param);
 	std::wstring GetToolFromBinding(const std::wstring& wszKey);
@@ -109,6 +111,43 @@ namespace Game {
 
 		int value = std::stoi(wLine);
 		return (bool)value;
+	}
+
+	bool LoadServicesSettings(const std::wstring& wszInputFile)
+	{
+		//Load services configuration
+
+		std::wifstream hFile;
+		std::wstring wLine = L"1";
+		hFile.open(wszInputFile, std::wifstream::in);
+		if (hFile.is_open()) {
+			while (!hFile.eof()) {
+				std::getline(hFile, wLine);
+
+				if (wLine.find(L"workshop") == 0) {
+					std::wstring wszValue = wLine.substr(wLine.find(L" ") + 1);
+					if (wszValue == L"steam") {
+						Game::eServiceType = Menu::WorkshopService_e::WORKSHOP_STEAM;
+					}
+					else if (wszValue == L"own") {
+						Game::eServiceType = Menu::WorkshopService_e::WORKSHOP_OWN;
+					}
+					else {
+						Game::eServiceType = Menu::WorkshopService_e::WORKSHOP_OWN;
+					}
+				}
+				else if (wLine.find(L"screenshot_upload") == 0) {
+					std::wstring wszValue = wLine.substr(wLine.find(L" ") + 1);
+					Game::bEnableScreenshotUpload = (bool)_wtoi(wszValue.c_str());
+				}
+			}
+
+			hFile.close();
+
+			return true;
+		}
+
+		return false;
 	}
 
 	bool StoreExitConfirmationIndicator(const std::wstring& wszOutputFile)
@@ -667,6 +706,17 @@ namespace Game {
 		}
 
 		pLogger->Log(Logger::LOG_INFO, L"Loaded all tool bindings");
+
+		//Load service configuration
+		if (!LoadServicesSettings(L"res\\services.txt")) {
+			Menu::SetServices(Menu::WorkshopService_e::WORKSHOP_STEAM, false);
+
+			pConsole->AddLine(L"Failed to load services settings from disk, using default values", Console::ConColor(150, 150, 0));
+			pLogger->Log(Logger::LOG_WARNING, L"Menu::LoadServicesSettings() failed: " + std::to_wstring(GetLastError()));
+		}
+		else {
+			Menu::SetServices(Game::eServiceType, Game::bEnableScreenshotUpload);
+		}
 
 		//Instantiate menu
 		pGameMenu = new Menu::CMenu(pDxRenderer, pDxSound, pToolManager, Entity::Vector(pDxRenderer->GetWindowWidth(), pDxRenderer->GetWindowHeight()), &vToolBindings);

@@ -113,5 +113,7 @@ The following basic steps are required to create a tool:
 	* Background image feature implemented
 	* Added scripting documentation
 	* Added logging
+	* Settings to switch between Steam or own workshop
+	* Settings to enable/disable screenshot upload
 	* Upgraded to MSVC++ 2019
 	* Bugfixes

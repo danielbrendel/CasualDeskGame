@@ -22,6 +22,7 @@
 /* Menu environment */
 namespace Menu {
 	enum MouseKey_e { MKEY_LEFT, MKEY_MID, MKEY_RIGHT };
+	enum WorkshopService_e { WORKSHOP_STEAM, WORKSHOP_OWN };
 
 	int SettingMenuBgImageWidth = 800;
 	int SettingMenuBgImageHeight = 500;
@@ -53,8 +54,11 @@ namespace Menu {
 	DxRenderer::d3dfont_s* DefaultFontHandle = nullptr;
 	Entity::game_keys_s sGameKeys;
 	bool bShallConfirmOnExit = true;
+	WorkshopService_e workshopService;
+	bool bEnableScreenshotUpload = false;
 
 	void SetGameKeys(const Entity::game_keys_s& keys) { sGameKeys = keys; }
+	void SetServices(WorkshopService_e service, bool enableScreenshotUpload) { Menu::workshopService = service; Menu::bEnableScreenshotUpload = enableScreenshotUpload; }
 
 	bool SetupMenu(const std::wstring& wszInputFile)
 	{
@@ -938,6 +942,11 @@ namespace Menu {
 			{
 				//Fetch tool link list from host
 
+				if (Menu::workshopService == WORKSHOP_STEAM) {
+					SteamFriends()->ActivateGameOverlayToWebPage("https://steamcommunity.com/app/1001860/workshop/");
+					return;
+				}
+
 				this->m_bNetworkError = true;
 
 				this->Release();
@@ -1081,6 +1090,11 @@ namespace Menu {
 			{
 				//Draw additional info
 
+				if (Menu::workshopService == WorkshopService_e::WORKSHOP_STEAM) {
+					this->m_pRenderer->DrawString(DefaultFontHandle, L"Use the Steam Workshop for getting new tools.", vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
+					return;
+				}
+
 				IMenuItemContextMenu::Draw(this->GetCursorPos());
 
 				if (this->m_bFetchingList) {
@@ -1181,7 +1195,9 @@ namespace Menu {
 				IMenuItemContextMenu::SetFontDims(Entity::Vector(DefaultFontSizeW, DefaultFontSizeH));
 				IMenuItemContextMenu::SetColors(Entity::Color(0, 162, 232, 150), Entity::Color(231, 231, 232, 150), Entity::Color(0, 0, 0, 150));
 				IMenuItemContextMenu::AddContextMenuItem(L"Copy", CMenuCatScreenshots::ContextMenuItemCopy);
-				IMenuItemContextMenu::AddContextMenuItem(L"Upload", CMenuCatScreenshots::ContextMenuItemUpload);
+				if (Menu::bEnableScreenshotUpload) {
+					IMenuItemContextMenu::AddContextMenuItem(L"Upload", CMenuCatScreenshots::ContextMenuItemUpload);
+				}
 				IMenuItemContextMenu::AddContextMenuItem(L"Remove", CMenuCatScreenshots::ContextMenuItemDelete);
 			}
 
@@ -1236,7 +1252,7 @@ namespace Menu {
 							return;
 						}
 						std::wstring wszFileName = Utils::ExtractFileName(this->m_wszCurrentScreenshot);
-						Browser::CImageUploader oImageUploader(Utils::ConvertToAnsiString(Browser::SettingHostURL), "/uploadScreenshot", Utils::ConvertToAnsiString(wszFileName), Utils::ConvertToAnsiString(this->m_wszCurrentScreenshot), SteamFriends()->GetPersonaName(), "imgfile");
+						Browser::CImageUploader oImageUploader(Utils::ConvertToAnsiString(Browser::SettingHostURL), "/cdg/uploadScreenshot", Utils::ConvertToAnsiString(wszFileName), Utils::ConvertToAnsiString(this->m_wszCurrentScreenshot), std::to_string(SteamUser()->GetSteamID().ConvertToUint64()), "imgfile");
 						bool bResult = oImageUploader.Upload();
 						if (bResult) {
 							this->PushInfo(L"Image upload succeeded!");
