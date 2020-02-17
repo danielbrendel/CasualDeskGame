@@ -5,7 +5,7 @@ scrollup 38
 scrolldown 40
 teamselect 32
 console 122
-screenshot 120
+screenshot 121
 key1 49
 key2 50
 key3 51
