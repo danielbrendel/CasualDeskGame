@@ -7,7 +7,8 @@ Version: 1.0
 Contact: dbrendel1988<at>gmail<dot>com
 GitHub: https://github.com/danielbrendel/
 Steam Shop: https://store.steampowered.com/app/1001860/Casual_Desktop_Game/
-License: see LICENSE.txt
+
+Released under the MIT license
 
 This program is a casual game with the purpose to pass time via spawning and 
 handling custom created entities on your Desktop. Therefore you will be provided 

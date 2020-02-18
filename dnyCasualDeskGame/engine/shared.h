@@ -9,7 +9,7 @@
 	Contact: dbrendel1988<at>gmail<dot>com
 	GitHub: https://github.com/danielbrendel/
 
-	License: see LICENSE.txt
+	Released under the MIT license
 */
 
 #define DNY_CDG_PRODUCT_NAME L"dnyCasualDeskGame"
