@@ -331,7 +331,7 @@ namespace Browser {
 			}
 
 			//Init request
-			HINTERNET hRequest = HttpOpenRequestA(hConnection, "POST", std::string(this->m_szResource + "/?steamid=" + this->m_szSteamId).c_str(), "HTTP/1.1", nullptr, nullptr, 0, 0);
+			HINTERNET hRequest = HttpOpenRequestA(hConnection, "POST", std::string(this->m_szResource + "?steamid=" + this->m_szSteamId).c_str(), "HTTP/1.1", nullptr, nullptr, 0, 0);
 			if (!hRequest) {
 				InternetCloseHandle(hConnection);
 				InternetCloseHandle(hInet);
