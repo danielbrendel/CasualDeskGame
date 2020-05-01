@@ -4,7 +4,7 @@
 
 **Version**: 1.0\
 **Contact**: dbrendel1988 at gmail com\
-**GitHub**: https://github.com/danielbrendel\
+**GitHub**: https://github.com/danielbrendel<br/>
 **Steam**: https://store.steampowered.com/app/1001860/Casual_Desktop_Game
 
 Released under the MIT license
