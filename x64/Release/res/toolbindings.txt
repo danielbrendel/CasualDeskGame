@@ -3,8 +3,8 @@ key2 colorgun.as
 key3 bomb.as
 key4 hammer.as
 key5 stamp.as
-key6 #0
-key7 #0
-key8 #0
-key9 #0
-key10 #0
+key6 tc_heavy.as
+key7 lasermech.as
+key8 gunner.as
+key9 teslatower.as
+key0 rlauncher.as
