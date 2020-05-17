@@ -957,7 +957,7 @@ namespace Entity {
 		void Process(void)
 		{
 			//Inform entities
-
+			
 			for (size_t i = 0; i < this->m_vEnts.size(); i++) {
 				//Let entity process
 				this->m_vEnts[i]->OnProcess();
@@ -1585,12 +1585,16 @@ namespace Entity {
 		std::vector<gt_list_item_s> m_vTools;
 		HTOOL m_hSelectedTool;
 		Vector m_vMousePos;
+		Vector m_vStartSelPos;
+		Vector m_vEndSelPos;
 		std::vector<CScriptedEntity*> m_vSelectedEntities;
 		bool m_bSurpressSelToolForwarding;
 		DxRenderer::HD3DSPRITE m_hGotoCursor;
 		DxRenderer::HD3DSPRITE m_hPointer;
 		bool m_bDrawPointer;
+		bool m_bInSelection;
 		bool m_bCtrlHeld;
+		bool m_bReleaseButtonNext;
 
 		bool QueryToolInfo(gt_list_item_s& sGtData, const game_keys_s& gamekeys)
 		{
@@ -1714,7 +1718,7 @@ namespace Entity {
 			pGfxReference->FreeSprite(this->m_hPointer);
 		}
 	public:
-		CToolMgr() : m_hSelectedTool(InvalidToolHandle), m_bSurpressSelToolForwarding(false), m_bDrawPointer(false), m_bCtrlHeld(false)
+		CToolMgr() : m_hSelectedTool(InvalidToolHandle), m_bSurpressSelToolForwarding(false), m_bDrawPointer(false), m_bCtrlHeld(false), m_bInSelection(false), m_bReleaseButtonNext(false)
 		{ 
 			_pGameToolMgrInstance = this;
 
@@ -1757,9 +1761,11 @@ namespace Entity {
 					if (this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Elapsed()) {
 						//Needed to not inform the selected tool of a part of mouse click when handling entity selection
 						if (!this->m_bSurpressSelToolForwarding) {
-							this->m_vTools[this->m_hSelectedTool].pGameTool->OnTrigger(this->m_vMousePos);
-						} else {
-							this->m_bSurpressSelToolForwarding = false;
+							if (this->m_bReleaseButtonNext) {
+								this->m_bReleaseButtonNext = false;
+							} else {
+								this->m_vTools[this->m_hSelectedTool].pGameTool->OnTrigger(this->m_vMousePos);
+							}
 						}
 						this->m_vTools[this->m_hSelectedTool].oTriggerTimer.Reset();
 					}
@@ -1791,6 +1797,13 @@ namespace Entity {
 
 			//Inform scripted entities
 			oScriptedEntMgr.DrawOnTop();
+
+			//Draw selection box if in selection
+			if (this->m_bInSelection) {
+				if ((this->m_vMousePos[0] > this->m_vStartSelPos[0]) && (this->m_vMousePos[1] > this->m_vStartSelPos[1])) {
+					pGfxReference->DrawBox(this->m_vStartSelPos[0], this->m_vStartSelPos[1], this->m_vMousePos[0] - this->m_vStartSelPos[0], this->m_vMousePos[1] - this->m_vStartSelPos[1], 1, 128, 0, 0, 150);
+				}
+			}
 
 			//Draw cursor of current tool if requested
 			if ((bDrawCursor) && (this->m_hSelectedTool != InvalidToolHandle)) {
@@ -1840,20 +1853,12 @@ namespace Entity {
 				this->m_vMousePos[0] = x;
 				this->m_vMousePos[1] = y;
 
-				this->m_bDrawPointer = false;
-
+				//Check control key
 				if (GetAsyncKeyState(VK_CONTROL) & (1 << 15)) {
-					for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
-						CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
-						if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
-							Vector vCurPos = pEntity->GetPosition();
-							Vector vSelSize = pEntity->GetSelectionSize();
-							if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
-								this->m_bDrawPointer = true;
-								return;
-							}
-						}
-					}
+					this->m_bDrawPointer = true;
+				}
+				else {
+					this->m_bDrawPointer = false;
 				}
 			}
 
@@ -1865,33 +1870,64 @@ namespace Entity {
 			}
 
 			//Process entity movement selection and action
-			if ((iKey == gamekeys.vkTrigger) && (bDown)) {
-				if (bCtrlHeld) {
+			if ((iKey == gamekeys.vkTrigger) && (bCtrlHeld) && (bDown)) {
+				this->m_vStartSelPos[0] = this->m_vMousePos[0];
+				this->m_vStartSelPos[1] = this->m_vMousePos[1];
+				this->m_bInSelection = true;
+				this->m_bSurpressSelToolForwarding = true;
+			}
+			if ((iKey == gamekeys.vkTrigger) && (!bDown) && (this->m_bInSelection)) {
+				this->m_bInSelection = false;
+
+				this->m_vEndSelPos[0] = this->m_vMousePos[0];
+				this->m_vEndSelPos[1] = this->m_vMousePos[1];
+
+				if ((this->m_vEndSelPos[0] != this->m_vStartSelPos[0]) && (this->m_vEndSelPos[1] != this->m_vStartSelPos[1])) {
 					for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
 						CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
 						if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
 							Vector vCurPos = pEntity->GetPosition();
 							Vector vSelSize = pEntity->GetSelectionSize();
-							if ((this->m_vMousePos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vMousePos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vMousePos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vMousePos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
+							if ((vCurPos[0] > this->m_vStartSelPos[0]) && (vCurPos[0] - vSelSize[0] / 2 + vSelSize[0] < this->m_vEndSelPos[0]) && (vCurPos[1] > this->m_vStartSelPos[1]) && (vCurPos[1] - vSelSize[1] / 2 + vSelSize[1] < this->m_vEndSelPos[1])) {
 								this->m_vSelectedEntities.push_back(pEntity);
-								this->m_bSurpressSelToolForwarding = true;
-								return;
 							}
 						}
 					}
-				} else {
+				}
+				else {
+					for (size_t i = 0; i < oScriptedEntMgr.GetEntityCount(); i++) {
+						CScriptedEntity* pEntity = oScriptedEntMgr.GetEntity(i);
+						if ((pEntity != nullptr) && (pEntity->IsMovable()) && (oScriptedEntMgr.IsValidEntity(pEntity->Object()))) {
+							Vector vCurPos = pEntity->GetPosition();
+							Vector vSelSize = pEntity->GetSelectionSize();
+							if ((this->m_vStartSelPos[0] > vCurPos[0] - vSelSize[0] / 2) && (this->m_vEndSelPos[0] < vCurPos[0] - vSelSize[0] / 2 + vSelSize[0]) && (this->m_vStartSelPos[1] > vCurPos[1] - vSelSize[1] / 2) && (this->m_vEndSelPos[1] < vCurPos[1] - vSelSize[1] / 2 + vSelSize[1])) {
+								this->m_vSelectedEntities.push_back(pEntity);
+							}
+						}
+					}
+				}
+			}
+
+			//Process movement command
+			if ((iKey == gamekeys.vkTrigger) && (!bCtrlHeld)) {
+				if (this->m_bSurpressSelToolForwarding) {
 					for (size_t i = 0; i < this->m_vSelectedEntities.size(); i++) {
 						if (this->m_vSelectedEntities[i] != nullptr) {
 							this->m_vSelectedEntities[i]->MoveTo(this->m_vMousePos);
 						}
 					}
 
-					if (this->m_vSelectedEntities.size() != 0) {
-						this->m_bSurpressSelToolForwarding = true;
-					}
-
 					this->m_vSelectedEntities.clear();
+
+					this->m_bReleaseButtonNext = true;
+					this->m_bSurpressSelToolForwarding = false;
 				}
+			}
+
+			//Abort selection if desired
+			if ((iKey == gamekeys.vkClean) && (!bDown) && (this->m_bSurpressSelToolForwarding)) {
+				this->m_bSurpressSelToolForwarding = false;
+				this->m_vSelectedEntities.clear();
 			}
 
 			//Inform tools

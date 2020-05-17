@@ -243,6 +243,17 @@ namespace Browser {
 		std::string m_szImageFile;
 		std::string m_szSteamId;
 		std::string m_szFormDataName;
+		DWORD m_dwLastError;
+
+		void SaveLastError()
+		{
+			this->m_dwLastError = GetLastError();
+		}
+
+		void RestoreLastError()
+		{
+			SetLastError(this->m_dwLastError);
+		}
 
 		byte* LoadImageFile(size_t& uiImageSizeOut)
 		{
@@ -326,40 +337,52 @@ namespace Browser {
 			//Connect to resource
 			HINTERNET hConnection = InternetConnectA(hInet, this->m_szHost.c_str(), INTERNET_DEFAULT_HTTP_PORT, nullptr, nullptr, INTERNET_SERVICE_HTTP, 0, 0);
 			if (!hConnection) {
+				this->SaveLastError();
 				InternetCloseHandle(hInet);
+				this->RestoreLastError();
 				return false;
 			}
 
 			//Init request
 			HINTERNET hRequest = HttpOpenRequestA(hConnection, "POST", std::string(this->m_szResource + "?steamid=" + this->m_szSteamId).c_str(), "HTTP/1.1", nullptr, nullptr, 0, 0);
 			if (!hRequest) {
+				this->SaveLastError();
 				InternetCloseHandle(hConnection);
 				InternetCloseHandle(hInet);
+				this->RestoreLastError();
 				return false;
 			}
 
 			//Add additional reqest info
 			std::string szAddRequest = "Content-Type: multipart/form-data; boundary=" CIU_BOUNDARY "\r\n\r\n";
 			if (!HttpAddRequestHeadersA(hRequest, szAddRequest.c_str(), (DWORD)szAddRequest.length(), HTTP_ADDREQ_FLAG_ADD)) {
+				this->SaveLastError();
 				InternetCloseHandle(hRequest);
 				InternetCloseHandle(hConnection);
 				InternetCloseHandle(hInet);
+				this->RestoreLastError();
 				return false;
 			}
 
 			//Send request
 			bool bResult = (HttpSendRequestA(hRequest, nullptr, 0, (LPVOID)pData, (DWORD)uiDataLen) == TRUE);
 
+			//Store last error
+			this->SaveLastError();
+
 			//Close handles
 			InternetCloseHandle(hRequest);
 			InternetCloseHandle(hConnection);
 			InternetCloseHandle(hInet);
 
+			//Restore last error
+			this->RestoreLastError();
+
 			return bResult;
 		}
 	public:
 		CImageUploader() {}
-		CImageUploader(const std::string& szHost, const std::string& szRes, const std::string& szImgName, const std::string& szImgFile, const std::string& szSteamId, const std::string& szFrmName) : m_szHost(szHost), m_szResource(szRes), m_szImageFile(szImgFile), m_szImageName(szImgName), m_szSteamId(szSteamId), m_szFormDataName(szFrmName) {}
+		CImageUploader(const std::string& szHost, const std::string& szRes, const std::string& szImgName, const std::string& szImgFile, const std::string& szSteamId, const std::string& szFrmName) : m_szHost(szHost), m_szResource(szRes), m_szImageFile(szImgFile), m_szImageName(szImgName), m_szSteamId(szSteamId), m_szFormDataName(szFrmName), m_dwLastError(ERROR_SUCCESS) {}
 		~CImageUploader() {}
 
 		//Actions

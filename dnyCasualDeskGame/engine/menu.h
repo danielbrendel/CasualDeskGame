@@ -1257,7 +1257,7 @@ namespace Menu {
 						if (bResult) {
 							this->PushInfo(L"Image upload succeeded!");
 						} else {
-							this->PushError(L"Image upload failed!");
+							this->PushError(L"Image upload failed: " + std::to_wstring(GetLastError()));
 						}
 					//}
 					break;

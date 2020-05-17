@@ -21,8 +21,8 @@ game website).
 Default keys:
 *************
 Use: Left mouse button (Use the selected tool)
-Move: Ctrl + left mouse button to select, left mouse button to move (move an entity)
-Clean: Right mouse button (Clean your "work")
+Move: Select by ctrl + click or draw area to select entities, then click again to move
+Clean: Right mouse button (Clean your "work") or abort selection when selected entities
 Menu: TAB (Handle tools, Workshop items, screenshots and view news)
 Team: Space (Change tool team if applicable)
 0-9: Select bound tool
