@@ -1,2 +1,2 @@
 workshop steam
-screenshot_upload 1
+screenshot_upload 0
