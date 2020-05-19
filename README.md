@@ -111,6 +111,7 @@ The following basic steps are required to create a tool:
 	* Added new tool 'pistol'
 	* Added new tool 'rlauncher'
 	* Added new tool 'boltwand'
+	* Added new tool 'meteorshower'
 	* Background image feature implemented
 	* Added scripting documentation
 	* Added logging

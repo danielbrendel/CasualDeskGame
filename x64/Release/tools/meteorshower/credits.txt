@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+Fireball: Viktor Hahn (https://opengameart.org/content/spell-animation-spritesheets)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)
+Spawn: themightyglider (https://opengameart.org/content/catching-fire)
