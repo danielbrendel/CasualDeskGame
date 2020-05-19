@@ -493,7 +493,7 @@ class CExplosion : IScriptedEntity
 	//0 = not damageable, 1 = damage all, 2 = not damaging entities with same name
 	DamageType IsDamageable()
 	{
-		return DAMAGEABLE_ALL;
+		return DAMAGEABLE_NOTSQUAD;
 	}
 	
 	//Called when the entity recieves damage
@@ -529,7 +529,7 @@ class CExplosion : IScriptedEntity
 	//Return a name string here, e.g. the class name or instance name. This is used when DAMAGE_NOTSQUAD is defined as damage-type, but can also be useful to other entities
 	string GetName()
 	{
-		return "";
+		return "Bazooka";
 	}
 	
 	//Indicate if this entity is movable
@@ -651,7 +651,7 @@ class CRocketEntity : IScriptedEntity
 	//0 = not damageable, 1 = damage all, 2 = not damaging entities with same name
 	DamageType IsDamageable()
 	{
-		return DAMAGEABLE_ALL;
+		return DAMAGEABLE_NOTSQUAD;
 	}
 	
 	//Called when the entity recieves damage
@@ -688,7 +688,7 @@ class CRocketEntity : IScriptedEntity
 	//Return a name string here, e.g. the class name or instance name. This is used when DAMAGE_NOTSQUAD is defined as damage-type, but can also be useful to other entities
 	string GetName()
 	{
-		return "Rocket";
+		return "Bazooka";
 	}
 	
 	//Indicate if this entity is movable

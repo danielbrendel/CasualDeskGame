@@ -692,7 +692,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 	info.szContact = "dbrendel1988<at>gmail<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "cursor.png";
-	info.szCategory = "Demo";
+	info.szCategory = "Visual";
 	info.iCursorWidth = 64;
 	info.iCursorHeight = 64;
 	info.uiTriggerDelay = 125;

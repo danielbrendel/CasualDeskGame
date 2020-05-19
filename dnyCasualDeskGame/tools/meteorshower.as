@@ -3,8 +3,8 @@
 	
 	(C) 2018 - 2020 by Daniel Brendel
 	
-	Tool: Demo (Tool SDK) (developed by Daniel Brendel)
-	Version: 0.3
+	Tool: Meteorshower (developed by Daniel Brendel)
+	Version: 0.1
 	Contact: dbrendel1988<at>gmail<dot>com
 	GitHub: https://github.com/danielbrendel/
 
@@ -742,17 +742,17 @@ class CFireball : IScriptedEntity
 	//Entity can draw everything in default order here
 	void OnDraw()
 	{
+	}
+	
+	//Entity can draw on-top stuff here
+	void OnDrawOnTop()
+	{
 		R_DrawSprite(this.m_hSprite, this.m_vecPos, this.m_iSpriteIndex, this.m_fRotation - 0.14f, Vector(-1, -1), 0.0, 0.0, false, Color(0, 0, 0, 0));
 		
 		this.m_iSpriteIndex++;
 		if (this.m_iSpriteIndex > SPRITESHEET_INDEX_END) {
 			this.m_iSpriteIndex = SPRITESHEET_INDEX_START;
 		}
-	}
-	
-	//Entity can draw on-top stuff here
-	void OnDrawOnTop()
-	{
 	}
 	
 	//Indicate whether the user is allowed to clean this entity
@@ -938,7 +938,7 @@ bool CDG_API_QueryToolInfo(HostVersion hvVersion, ToolInfo &out info, const Game
 	info.szContact = "dbrendel1988<at>gmail<dot>com";
 	info.szPreviewImage = "preview.png";
 	info.szCursor = "target.png";
-	info.szCategory = "Demo";
+	info.szCategory = "Weapons";
 	info.iCursorWidth = 64;
 	info.iCursorHeight = 64;
 	info.uiTriggerDelay = 100;
