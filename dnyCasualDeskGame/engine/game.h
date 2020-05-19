@@ -782,9 +782,9 @@ namespace Game {
 
 		pLogger->Log(Logger::LOG_INFO, L"Initialized Steam Workshop interface");
 
-		//Get Workshop items
-		if (!pSteamDownloader->CopyWorkshopItems()) {
-			pLogger->Log(Logger::LOG_WARNING, L"Workshop::CSteamDownload::CopyWorkshopItems() failed: " + std::to_wstring(GetLastError()));
+		//Process subscribed Workshop items
+		if (!pSteamDownloader->ProcessSubscribedItems()) {
+			pLogger->Log(Logger::LOG_WARNING, L"Workshop::CSteamDownload::ProcessSubscribedItems() failed: " + std::to_wstring(GetLastError()));
 		} else {
 			pLogger->Log(Logger::LOG_INFO, L"Retrieved Workshop items");
 		}

@@ -90,9 +90,9 @@ namespace Workshop {
 		}
 	}
 
-	bool CSteamDownload::CopyWorkshopItems(void)
+	bool CSteamDownload::ProcessSubscribedItems(void)
 	{
-		//Copy all Workshop items
+		//Process all subscribed Workshop items
 
 		if (!this->m_bReady)
 			return false;

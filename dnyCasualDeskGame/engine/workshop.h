@@ -264,6 +264,6 @@ namespace Workshop {
 			this->m_bReady = false;
 		}
 
-		bool CopyWorkshopItems(void);
+		bool ProcessSubscribedItems(void);
 	};
 }
