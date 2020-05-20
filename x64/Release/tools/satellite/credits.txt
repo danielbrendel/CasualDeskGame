@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Crosshair: para (https://opengameart.org/content/64-crosshairs-pack)
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+Lightning: oglsdl (https://opengameart.org/content/lightning-1)
+
+SFX Credits:
+============
+Explosion and lightning: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion, https://opengameart.org/content/ice-electricity-magic)

@@ -112,6 +112,7 @@ The following basic steps are required to create a tool:
 	* Added new tool 'rlauncher'
 	* Added new tool 'boltwand'
 	* Added new tool 'meteorshower'
+	* Added new tool 'satellite'
 	* Background image feature implemented
 	* Added scripting documentation
 	* Added logging

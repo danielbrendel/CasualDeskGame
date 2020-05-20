@@ -118,6 +118,7 @@ Changelog:
 	+ Added new tool 'rlauncher'
 	+ Added new tool 'boltwand'
 	+ Added new tool 'meteorshower'
+	+ Added new tool 'satellite'
 	+ Background image feature implemented
 	+ Added scripting documentation
 	+ Added logging
