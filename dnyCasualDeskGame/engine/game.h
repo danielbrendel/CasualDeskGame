@@ -546,7 +546,7 @@ namespace Game {
 				if (pToolManager->LoadToolFromName(sFindData.cFileName, sGameKeys) != Entity::CToolMgr::InvalidToolHandle) {
 					pConsole->AddLine(L"Tool \"" + std::wstring(sFindData.cFileName) + L"\": Ok", Console::ConColor(0, 150, 0));
 				} else {
-					pConsole->AddLine(L"Tool \"" + std::wstring(sFindData.cFileName) + L"\": Fail", Console::ConColor(150, 0, 0));
+					pConsole->AddLine(L"Tool \"" + std::wstring(sFindData.cFileName) + L"\": Failure", Console::ConColor(150, 0, 0));
 				}
 			}
 		}
@@ -565,7 +565,7 @@ namespace Game {
 			if (pToolManager->LoadToolFromPath(wszItem + L"\\" + sInfo.wszToolName + L".as", sGameKeys) != Entity::CToolMgr::InvalidToolHandle) {
 				pConsole->AddLine(L"Tool \"" + sInfo.wszToolName + L"\": Ok", Console::ConColor(0, 150, 0));
 			} else {
-				pConsole->AddLine(L"Tool \"" + sInfo.wszToolName + L"\": Fail", Console::ConColor(150, 0, 0));
+				pConsole->AddLine(L"Tool \"" + sInfo.wszToolName + L"\": Failure", Console::ConColor(150, 0, 0));
 			}
 		}
 	}

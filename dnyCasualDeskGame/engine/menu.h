@@ -1067,7 +1067,7 @@ namespace Menu {
 							if (this->m_pToolMgr->LoadToolFromName(this->m_sCurSubItem.wszName, sGameKeys) != Entity::CToolMgr::InvalidToolHandle) {
 								Entity::APIFuncs::Print2("Tool \"" + Utils::ConvertToAnsiString(this->m_sCurSubItem.wszName) + "\": Ok", Console::ConColor(0, 150, 0));
 							} else {
-								Entity::APIFuncs::Print2("Tool \"" + Utils::ConvertToAnsiString(this->m_sCurSubItem.wszName) + "\": Fail", Console::ConColor(150, 0, 0));
+								Entity::APIFuncs::Print2("Tool \"" + Utils::ConvertToAnsiString(this->m_sCurSubItem.wszName) + "\": Failure", Console::ConColor(150, 0, 0));
 							}
 							//Clear resources and values
 							this->m_bDownloadingItem = false;
