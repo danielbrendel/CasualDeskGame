@@ -15,7 +15,8 @@ handling custom created entities on your Desktop. Therefore you will be provided
 with a set of tools. As a developer you can also create your own tools using 
 AngelScript. Available tools are selected via the ingame menu. New tools can be 
 viewed and downloaded via the ingame menu, too. You can also view/upload taken 
-screenshots during gameplay (upload to a web service).
+screenshots during gameplay (upload to a web service). There is also a settings
+menu where to adjust certain settings and also a news page.
 
 Default keys:
 *************
