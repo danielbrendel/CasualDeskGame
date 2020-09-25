@@ -505,7 +505,9 @@ class CHeadcrab : IScriptedEntity
 			if (this.m_fSpeed == C_HEADCRAB_DEFAULT_SPEED)
 				this.m_fSpeed *= 2;
 				
-			this.LookAt(pEntity.GetPosition());
+			if (pEntity.GetName().length() > 0) {
+				this.LookAt(pEntity.GetPosition());
+			}
 
 			if (this.m_vecPos.Distance(pEntity.GetPosition()) <= C_HEADGRAB_ATTACK_RANGE) {
 				this.m_oAttack.Update();
