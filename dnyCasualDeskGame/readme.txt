@@ -4,7 +4,7 @@ Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 (C) 2018 - 2020 by Daniel Brendel
 
 Version: 1.0
-Contact: dbrendel1988<at>gmail<dot>com
+Contact: dbrendel1988(at)gmail(dot)com
 GitHub: https://github.com/danielbrendel/
 Steam Shop: https://store.steampowered.com/app/1001860/Casual_Desktop_Game/
 
