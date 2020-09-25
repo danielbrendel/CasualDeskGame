@@ -107,7 +107,7 @@ The following basic steps are required to create a tool:
 	* Adjustable exit confirmation
 	* Entities can now be pointed to a target destination
 	* tc_light, tc_heavy, tc_dualgun, soldier and lasermech are now movable by user
-	* headcrab does now attack opponents
+	* headcrabs do now attack opponents and flee if from attacks if they can't fight back
 	* Added new tool 'pistol'
 	* Added new tool 'rlauncher'
 	* Added new tool 'boltwand'
