@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Crosshair: para
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+Ballista: castelonia (https://opengameart.org/content/siege-weapons)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)

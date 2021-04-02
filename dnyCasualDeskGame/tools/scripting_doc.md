@@ -1,6 +1,6 @@
 # API documentation for Casual Desktop Game (dnyCasualDeskGame)
 
-(C) 2018 - 2020 by Daniel Brendel (dbrendel1988@gmail.com)
+(C) 2018 - 2021 by Daniel Brendel (dbrendel1988@gmail.com)
 
 __Version__: 1.0\
 __Note__: Look at demo_sdk.as in order to view a well documented scripting example\

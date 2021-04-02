@@ -3,7 +3,7 @@
 /*
 	Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 
-	(C) 2018 - 2020 by Daniel Brendel
+	(C) 2018 - 2021 by Daniel Brendel
 
 	Version: 1.0
 	Contact: dbrendel1988<at>gmail<dot>com
@@ -1091,7 +1091,7 @@ namespace Menu {
 				//Draw additional info
 
 				if (Menu::workshopService == WorkshopService_e::WORKSHOP_STEAM) {
-					this->m_pRenderer->DrawString(DefaultFontHandle, L"Use the Steam Workshop for getting new tools.", vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
+					this->m_pRenderer->DrawString(DefaultFontHandle, L"Use the Steam Workshop to get new tools.", vBodyStart[0], vBodyStart[1], 200, 200, 200, 150);
 					return;
 				}
 

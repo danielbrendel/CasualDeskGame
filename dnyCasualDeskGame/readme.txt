@@ -1,7 +1,7 @@
 Casual Desktop Game (dnyCasualDeskGame) developed by Daniel Brendel
 ==============================================================
 
-(C) 2018 - 2020 by Daniel Brendel
+(C) 2018 - 2021 by Daniel Brendel
 
 Version: 1.0
 Contact: dbrendel1988(at)gmail(dot)com
@@ -119,6 +119,8 @@ Changelog:
 	+ Added new tool 'boltwand'
 	+ Added new tool 'meteorshower'
 	+ Added new tool 'satellite'
+	+ Added new tool 'bee'
+	+ Added new tool 'ballista'
 	+ Background image feature implemented
 	+ Added scripting documentation
 	+ Added logging

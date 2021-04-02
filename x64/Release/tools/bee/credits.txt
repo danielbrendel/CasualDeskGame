@@ -1,0 +1,9 @@
+2D Art Credits:
+===============
+Bomb: knik1985 (https://opengameart.org/content/guns-wwii)
+Crosshair: para (https://opengameart.org/content/64-crosshairs-pack)
+Explosion sprite: helpcomputer (https://opengameart.org/content/explosions-2)
+
+SFX Credits:
+============
+Explosion: Iwan Gabovitch (https://opengameart.org/content/synthesized-explosion)
